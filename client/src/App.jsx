@@ -1,20 +1,10 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-
 export default function App() {
-  const [msg, setMsg] = useState("Loading...");
-
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/health")
-      .then((res) => setMsg(res.data.message))
-      .catch(() => setMsg("Backend not reachable"));
-  }, []);
-
   return (
-    <div style={{ padding: 20, fontFamily: "Arial" }}>
-      <h1>CSE470 Doctor-Patient System</h1>
-      <p>Backend says: {msg}</p>
+    <div className="min-h-screen grid place-items-center bg-gray-900 text-white">
+      <div className="p-8 rounded-2xl bg-gray-800 shadow">
+        <h1 className="text-3xl font-bold">Tailwind is working ✅</h1>
+        <p className="mt-2 text-gray-300">Next: Auth module</p>
+      </div>
     </div>
   );
 }
