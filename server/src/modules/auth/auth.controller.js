@@ -1,56 +1,169 @@
-const bcrypt = require("bcrypt");
-const User = require("../../models/User");
-const { signToken } = require("../../utils/jwt");
-const { registerSchema, loginSchema } = require("./auth.validation");
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const User = require('../../models/User');
+const { sendEmail } = require('../../config/email');
 
-async function register(req, res) {
-  const parsed = registerSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ success: false, message: "Validation error", data: parsed.error.flatten() });
-  }
-
-  const { name, email, password, role } = parsed.data;
-
-  const existing = await User.findOne({ email });
-  if (existing) return res.status(409).json({ success: false, message: "Email already in use" });
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, passwordHash, role });
-
-  const token = signToken({ userId: user._id.toString(), role: user.role });
-
-  return res.status(201).json({
-    success: true,
-    message: "Registered successfully",
-    data: { token, user: { id: user._id, name: user.name, email: user.email, role: user.role } },
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || '7d',
   });
-}
+};
 
-async function login(req, res) {
-  const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ success: false, message: "Validation error", data: parsed.error.flatten() });
+const register = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'User with this email already exists',
+      });
+    }
+
+    // Generate email verification token
+    const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role: role || 'PATIENT',
+      emailVerificationToken,
+    });
+
+    // Send verification email
+    const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${emailVerificationToken}`;
+    
+    await sendEmail({
+      to: user.email,
+      subject: 'Verify Your Email - BRACU Consultation System',
+      html: `
+        <h2>Welcome to BRACU Consultation System!</h2>
+        <p>Hi ${user.name},</p>
+        <p>Thank you for registering. Please verify your email by clicking the link below:</p>
+        <a href="${verificationUrl}">${verificationUrl}</a>
+        <p>If you didn't create this account, please ignore this email.</p>
+      `,
+      text: `Welcome! Please verify your email: ${verificationUrl}`,
+    });
+
+    // Generate token
+    const token = generateToken(user._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Please check your email to verify your account.',
+      data: {
+        user,
+        token,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
+};
 
-  const { email, password } = parsed.data;
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) return res.status(401).json({ success: false, message: "Invalid credentials" });
+    // Find user with password
+    const user = await User.findOne({ email }).select('+password');
 
-  const ok = await bcrypt.compare(password, user.passwordHash);
-  if (!ok) return res.status(401).json({ success: false, message: "Invalid credentials" });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password',
+      });
+    }
 
-  const token = signToken({ userId: user._id.toString(), role: user.role });
+    // Check password
+    const isPasswordCorrect = await user.comparePassword(password);
 
-  return res.json({
-    success: true,
-    message: "Logged in successfully",
-    data: { token, user: { id: user._id, name: user.name, email: user.email, role: user.role } },
-  });
-}
+    if (!isPasswordCorrect) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password',
+      });
+    }
 
-async function me(req, res) {
-  return res.json({ success: true, message: "OK", data: req.user });
-}
+    // Generate token
+    const token = generateToken(user._id);
 
-module.exports = { register, login, me };
+    // Remove password from response
+    user.password = undefined;
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        user,
+        token,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getMe = async (req, res) => {
+  try {
+    const user = req.user;
+
+    res.json({
+      success: true,
+      data: { user },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const user = await User.findOne({ emailVerificationToken: token });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification token',
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully',
+      data: { user },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {
+  register,
+  login,
+  getMe,
+  verifyEmail,
+};

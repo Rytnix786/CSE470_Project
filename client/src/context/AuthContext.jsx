@@ -1,46 +1,78 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import api from "../api/axios";
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../api/api';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
-    if (!token) {
-      setUser(null);
-      return;
+    if (token) {
+      loadUser();
+    } else {
+      setLoading(false);
     }
-
-    api
-      .get("/api/auth/me")
-      .then((res) => setUser(res.data.data))
-      .catch(() => {
-        localStorage.removeItem("token");
-        setToken("");
-        setUser(null);
-      });
   }, [token]);
 
-  const loginWithToken = (t) => {
-    localStorage.setItem("token", t);
-    setToken(t);
+  const loadUser = async () => {
+    try {
+      const response = await authAPI.getMe();
+      setUser(response.data.user);
+    } catch (error) {
+      console.error('Failed to load user:', error);
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (credentials) => {
+    const response = await authAPI.login(credentials);
+    const { user, token } = response.data;
+    
+    localStorage.setItem('token', token);
+    setToken(token);
+    setUser(user);
+    
+    return user;
+  };
+
+  const register = async (userData) => {
+    const response = await authAPI.register(userData);
+    const { user, token } = response.data;
+    
+    localStorage.setItem('token', token);
+    setToken(token);
+    setUser(user);
+    
+    return user;
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    setToken("");
+    localStorage.removeItem('token');
+    setToken(null);
     setUser(null);
   };
 
-  return (
-    <AuthContext.Provider value={{ token, user, loginWithToken, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+  const value = {
+    user,
+    token,
+    loading,
+    login,
+    register,
+    logout,
+    isAuthenticated: !!user,
+  };
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
