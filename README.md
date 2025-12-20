@@ -1,64 +1,73 @@
-# BRACU CSE470 Doctor-Patient Consultation System
+# BRACU Health (Doctor–Patient Consultation System)
 
-A comprehensive full-stack telemedicine platform built with MERN stack (MongoDB, Express, React, Node.js).
+BRACU Health is a full-stack doctor–patient consultation system with secure authentication and role-based access control.
 
-## Features
+## Key Features
 
-### 👥 Role-Based Access Control
-- **Patient**: Book appointments, consult doctors, manage health records
-- **Doctor**: Manage profile, set availability, conduct consultations, write prescriptions
-- **Admin**: Verify doctors, manage system
+### PATIENT
 
-### 🔐 Authentication & Authorization
-- JWT-based authentication
-- Email verification system
-- Role-based route protection
+- Doctor search & booking
+- Online consultation (chat)
+- Secure payment
+- Reviews & ratings for doctors
+- Health records management (BP, Sugar, Weight, Height)
+- Health Snapshot dashboard
+- View prescriptions
 
-### 🩺 Doctor Management (FR5.1, FR5.2)
-- Doctor profile creation with license verification
-- Admin verification workflow
-- Searchable doctor directory with filters
+### DOCTOR
 
-### 📅 Availability & Booking (FR5.4, FR1.1, FR1.2, FR1.3)
-- Doctors set custom availability slots
-- Patients search doctors by availability
-- Real-time slot booking with conflict prevention
-- Appointment rescheduling and cancellation
+- Profile management
+- Availability slots
+- Consultation chat
+- End consultation
+- Create prescriptions
+- View patient health records + Health Snapshot
+- View patient reviews & average rating
 
-### 💳 Payment System (FR4.1-FR4.4)
-- Mock payment gateway integration
-- Payment status tracking
-- Automated email receipts
-- Refund processing
+### ADMIN
 
-### 💬 Online Consultation (FR2.1-FR2.4)
-- Real-time chat using Socket.IO
-- File/image upload capability
-- Consultation session management
-
-### 📝 Prescriptions & Health Records (FR3.1-FR3.4)
-- Digital prescription generation
-- Patient health record management
-- Prescription history and download
+- Verify doctors
+- Manage platform users
 
 ## Tech Stack
 
-### Backend
-- **Runtime**: Node.js + Express.js
-- **Database**: MongoDB (Atlas/Local)
-- **Authentication**: JWT + bcrypt
-- **Validation**: Zod
-- **Real-time**: Socket.IO
-- **File Upload**: Multer
-- **Email**: Nodemailer
-
 ### Frontend
-- **Framework**: React 18 + Vite
-- **Styling**: Tailwind CSS
-- **Routing**: React Router v6
-- **State**: Context API
-- **HTTP Client**: Axios
-- **Real-time**: Socket.IO Client
+
+- React
+- Tailwind CSS
+
+### Backend
+
+- Node.js
+- Express
+- MongoDB
+- Mongoose
+
+### Validation
+
+- Zod
+
+### Realtime
+
+- Socket.IO
+
+## Health Snapshot
+
+- Animated dashboard card
+- Shows latest:
+  - Blood Pressure
+  - Blood Sugar
+  - Weight
+  - Height
+  - Last updated date
+- Supports light & dark mode
+
+## UI / UX
+
+- Tailwind CSS
+- Neon-accent dark mode + light mode toggle
+- Responsive design
+- Modern dashboard components (uiverse-inspired)
 
 ## Project Structure
 
@@ -92,95 +101,10 @@ bracu-consultation-system/
 
 ## Setup Instructions
 
-### Prerequisites
-- Node.js >= 18.x
-- MongoDB (local installation or MongoDB Atlas account)
-- npm or yarn
-
-### 1. Clone and Install
-
-```bash
-# Navigate to project
-cd bracu-consultation-system
-
-# Install all dependencies (root, server, client)
-npm run install-all
-```
-
-### 2. Environment Configuration
-
-#### Server (.env)
-Create `server/.env` based on `server/.env.example`:
-
-```env
-# Server
-PORT=5000
-NODE_ENV=development
-
-# Database
-MONGODB_URI=mongodb://localhost:27017/bracu-consultation
-# Or use MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/bracu-consultation
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-JWT_EXPIRE=7d
-
-# Email (Optional - falls back to console logging if not provided)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-EMAIL_FROM=noreply@bracu-consultation.com
-
-# Client URL
-CLIENT_URL=http://localhost:5173
-```
-
-#### Client (.env)
-Create `client/.env` based on `client/.env.example`:
-
-```env
-VITE_API_URL=http://localhost:5000
-VITE_SOCKET_URL=http://localhost:5000
-```
-
-### 3. Run the Application
-
-#### Option 1: Run Both (Recommended)
-```bash
-# From root directory
-npm run dev
-```
-
-#### Option 2: Run Separately
-```bash
-# Terminal 1 - Backend
-cd server
-npm run dev
-
-# Terminal 2 - Frontend
-cd client
-npm run dev
-```
-
-### 4. Seed Database (Optional)
-
-```bash
-cd server
-npm run seed
-```
-
-This creates:
-- Default admin user: `admin@bracu.ac.bd` / `Admin@123`
-- Sample doctors and patients
-- Test appointments and data
-
-### 5. Access the Application
-
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:5000
-- **API Health**: http://localhost:5000/health
+- Clone repo
+- Install dependencies (client & server)
+- Setup .env
+- Run backend and frontend
 
 ## Default Test Accounts
 
@@ -334,6 +258,12 @@ See `docs/API.md` for complete endpoint documentation or import `docs/postman-co
 1. Set VITE_API_URL to production backend
 2. Build: `npm run build`
 3. Deploy `dist/` folder
+
+## Important Notes
+
+- Do not commit .env
+- node_modules is ignored
+- Designed for academic project (CSE470)
 
 ## Contributing
 
