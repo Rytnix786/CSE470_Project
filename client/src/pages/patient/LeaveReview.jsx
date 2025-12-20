@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { reviewsAPI, appointmentsAPI } from '../../api/api';
 import { useAuth } from '../../context/AuthContext';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import GlowContainer from '../../components/ui/GlowContainer';
+import Input from '../../components/ui/Input';
 
 export default function LeaveReview() {
   const { id: appointmentId } = useParams();
@@ -56,7 +60,7 @@ export default function LeaveReview() {
             key={star}
             type="button"
             onClick={() => setRating(star)}
-            className={`text-3xl ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
+            className={`text-4xl transition-transform duration-200 hover:scale-110 ${star <= rating ? 'text-yellow-400' : 'text-gray-600'}`}
           >
             ★
           </button>
@@ -68,9 +72,11 @@ export default function LeaveReview() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <p>Loading...</p>
-        </div>
+        <GlowContainer>
+          <Card className="text-center py-12">
+            <p className="text-gray-400">Loading appointment details...</p>
+          </Card>
+        </GlowContainer>
       </div>
     );
   }
@@ -78,76 +84,68 @@ export default function LeaveReview() {
   if (error) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p className="text-red-700">{error}</p>
-          </div>
-          <button
-            onClick={() => navigate('/patient/reviews')}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-          >
-            Back to Reviews
-          </button>
-        </div>
+        <GlowContainer>
+          <Card variant="glass" className="border border-red-500/30 bg-red-900/20">
+            <p className="text-red-300 mb-4">{error}</p>
+            <Button variant="secondary" onClick={() => navigate('/patient/reviews')}>
+              Back to Reviews
+            </Button>
+          </Card>
+        </GlowContainer>
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-6">Leave a Review</h1>
+      <GlowContainer>
+        <h1 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">Leave a Review</h1>
         
         {appointment && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h2 className="font-semibold">{appointment.doctorId?.name}</h2>
-            <p className="text-gray-600">
+          <Card variant="glass" className="mb-6">
+            <h2 className="font-semibold text-white">{appointment.doctorId?.name}</h2>
+            <p className="text-gray-400 mt-1">
               {appointment.slotId?.date} at {appointment.slotId?.startTime}
             </p>
-          </div>
+          </Card>
         )}
         
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-3">
               Rating
             </label>
             {renderStars()}
-            {rating > 0 && <p className="mt-2 text-sm text-gray-500">Selected: {rating} star(s)</p>}
+            {rating > 0 && <p className="mt-2 text-sm text-gray-400">Selected: {rating} star(s)</p>}
           </div>
           
           <div className="mb-6">
-            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
-              Comment (Optional)
-            </label>
-            <textarea
-              id="comment"
-              rows={4}
+            <Input
+              label="Comment (Optional)"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Share your experience..."
+              variant="glass"
+              as="textarea"
+              rows={4}
             />
           </div>
           
           <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={() => navigate('/patient/reviews')}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-            >
+            <Button variant="secondary" type="button" onClick={() => navigate('/patient/reviews')}>
               Cancel
-            </button>
-            <button
-              type="submit"
+            </Button>
+            <Button 
+              variant="primary" 
+              type="submit" 
               disabled={submitting || rating === 0}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              className={submitting || rating === 0 ? 'opacity-50 cursor-not-allowed' : ''}
             >
               {submitting ? 'Submitting...' : 'Submit Review'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
+      </GlowContainer>
     </div>
   );
 }

@@ -110,13 +110,13 @@ export default function ConsultationChat() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-4 border-b flex justify-between items-center">
-          <h1 className="text-xl font-bold">Consultation Chat</h1>
+      <div className="bg-white rounded-lg shadow dark:bg-slate-900/70 dark:border dark:border-slate-800">
+        <div className="p-4 border-b flex justify-between items-center dark:border-slate-800">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Consultation Chat</h1>
           {user?.role === 'DOCTOR' && (
             <button
               onClick={handleEndConsultation}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
             >
               End Consultation
             </button>
@@ -133,17 +133,17 @@ export default function ConsultationChat() {
                 className={`max-w-xs md:max-w-md px-4 py-2 rounded-lg ${
                   msg.senderId._id === user?._id
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-900'
+                    : 'bg-gray-200 text-gray-900 dark:bg-slate-800 dark:text-slate-100'
                 }`}
               >
-                <p className="text-xs opacity-75 mb-1">{msg.senderId.name}</p>
+                <p className="text-xs opacity-75 mb-1 text-slate-900 dark:text-slate-100">{msg.senderId.name}</p>
                 {msg.message && <p>{msg.message}</p>}
                 {msg.fileUrl && (
                   <a
                     href={SOCKET_URL + msg.fileUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm underline"
+                    className="text-sm underline text-blue-600 dark:text-blue-400"
                   >
                     📎 View attachment
                   </a>
@@ -168,7 +168,7 @@ export default function ConsultationChat() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+            className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
           >
             {uploading ? '...' : '📎'}
           </button>
@@ -177,12 +177,12 @@ export default function ConsultationChat() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-700"
           />
           <button
             type="submit"
             disabled={!message.trim()}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
           >
             Send
           </button>

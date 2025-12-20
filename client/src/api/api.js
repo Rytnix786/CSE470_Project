@@ -105,6 +105,7 @@ export const reviewsAPI = {
 export const healthRecordsAPI = {
   createRecord: (data) => api.post('/health-records', data),
   getMyRecords: () => api.get('/health-records/me'),
+  getPatientRecords: (patientId) => api.get(`/health-records/patient/${patientId}`),
   getRecordById: (id) => api.get(`/health-records/${id}`),
   updateRecord: (id, data) => api.patch(`/health-records/${id}`, data),
   deleteRecord: (id) => api.delete(`/health-records/${id}`),

@@ -10,6 +10,7 @@ import ManageSlots from './pages/doctor/ManageSlots';
 import DoctorAppointments from './pages/doctor/DoctorAppointments';
 import DoctorPrescriptions from './pages/doctor/DoctorPrescriptions';
 import CreatePrescription from './pages/doctor/CreatePrescription';
+import DoctorPatientHealthRecords from './pages/doctor/DoctorPatientHealthRecords';
 import VerifyDoctors from './pages/admin/VerifyDoctors';
 import PatientAppointments from './pages/patient/PatientAppointments';
 import PrescriptionsList from './pages/patient/PrescriptionsList';
@@ -23,7 +24,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
           <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -62,6 +63,12 @@ function App() {
             <Route path="/doctor/prescriptions/create/:appointmentId" element={
               <ProtectedRoute roles={['DOCTOR']}>
                 <CreatePrescription />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/doctor/patients/:patientId/health-records" element={
+              <ProtectedRoute roles={['DOCTOR']}>
+                <DoctorPatientHealthRecords />
               </ProtectedRoute>
             } />
             

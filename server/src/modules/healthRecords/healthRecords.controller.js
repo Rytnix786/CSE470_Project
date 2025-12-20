@@ -1,4 +1,5 @@
 const HealthRecord = require('../../models/HealthRecord');
+const Appointment = require('../../models/Appointment');
 
 // Create health record
 const createHealthRecord = async (req, res) => {
@@ -150,10 +151,54 @@ const deleteHealthRecord = async (req, res) => {
   }
 };
 
+// Get patient health records (for doctors)
+const getPatientHealthRecords = async (req, res) => {
+  try {
+    // Verify user is a doctor
+    if (req.user.role !== 'DOCTOR') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - Requires DOCTOR role',
+      });
+    }
+
+    const { patientId } = req.params;
+    const doctorId = req.user._id;
+
+    // Check if there's an appointment relationship
+    const appointment = await Appointment.findOne({
+      doctorId,
+      patientId,
+      status: { $in: ['CONFIRMED', 'IN_PROGRESS', 'COMPLETED'] }
+    });
+
+    if (!appointment) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied - No valid appointment with this patient',
+      });
+    }
+
+    // Get patient's health records (sorted newest first)
+    const records = await HealthRecord.find({ patientId }).sort({ date: -1 });
+
+    res.json({
+      success: true,
+      data: { records },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createHealthRecord,
   getMyHealthRecords,
   getHealthRecordById,
   updateHealthRecord,
   deleteHealthRecord,
+  getPatientHealthRecords,
 };

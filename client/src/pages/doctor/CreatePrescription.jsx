@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { prescriptionsAPI, appointmentsAPI } from '../../api/api';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import GlowContainer from '../../components/ui/GlowContainer';
+import Input from '../../components/ui/Input';
 
 export default function CreatePrescription() {
   const { appointmentId } = useParams();
@@ -87,9 +91,11 @@ export default function CreatePrescription() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <p>Loading...</p>
-        </div>
+        <GlowContainer>
+          <Card className="text-center py-12">
+            <p className="text-gray-400">Loading appointment details...</p>
+          </Card>
+        </GlowContainer>
       </div>
     );
   }
@@ -97,152 +103,120 @@ export default function CreatePrescription() {
   if (error) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p className="text-red-700">{error}</p>
-          </div>
-          <button
-            onClick={() => navigate('/doctor/prescriptions')}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-          >
-            Back to Prescriptions
-          </button>
-        </div>
+        <GlowContainer>
+          <Card variant="glass" className="border border-red-500/30 bg-red-900/20">
+            <p className="text-red-300 mb-4">{error}</p>
+            <Button variant="secondary" onClick={() => navigate('/doctor/prescriptions')}>
+              Back to Prescriptions
+            </Button>
+          </Card>
+        </GlowContainer>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-6">Create Prescription</h1>
+      <GlowContainer>
+        <h1 className="text-2xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">Create Prescription</h1>
         
         {appointment && (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h2 className="font-semibold">{appointment.patientId?.name}</h2>
-            <p className="text-gray-600">
+          <Card variant="glass" className="mb-6">
+            <h2 className="font-semibold text-white">{appointment.patientId?.name}</h2>
+            <p className="text-gray-400 mt-1">
               {appointment.slotId?.date} at {appointment.slotId?.startTime}
             </p>
-          </div>
+          </Card>
         )}
         
         <form onSubmit={handleSubmit}>
           <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Medicines</h2>
-              <button
-                type="button"
-                onClick={handleAddMedicine}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
-              >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-100">Medicines</h2>
+              <Button variant="primary" size="sm" onClick={handleAddMedicine}>
                 Add Medicine
-              </button>
+              </Button>
             </div>
             
             {medicines.map((medicine, index) => (
-              <div key={index} className="mb-4 p-4 border rounded-lg">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-medium">Medicine #{index + 1}</h3>
+              <Card key={index} variant="glass" className="mb-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-medium text-gray-200">Medicine #{index + 1}</h3>
                   {medicines.length > 1 && (
-                    <button
-                      type="button"
+                    <Button 
+                      variant="danger" 
+                      size="sm" 
                       onClick={() => handleRemoveMedicine(index)}
-                      className="text-red-600 hover:text-red-800"
                     >
                       Remove
-                    </button>
+                    </Button>
                   )}
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Drug Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={medicine.drugName}
-                      onChange={(e) => handleMedicineChange(index, 'drugName', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., Paracetamol"
-                    />
-                  </div>
+                  <Input
+                    label="Drug Name *"
+                    value={medicine.drugName}
+                    onChange={(e) => handleMedicineChange(index, 'drugName', e.target.value)}
+                    placeholder="e.g., Paracetamol"
+                    variant="glass"
+                  />
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Dosage *
-                    </label>
-                    <input
-                      type="text"
-                      value={medicine.dosage}
-                      onChange={(e) => handleMedicineChange(index, 'dosage', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., 500mg"
-                    />
-                  </div>
+                  <Input
+                    label="Dosage *"
+                    value={medicine.dosage}
+                    onChange={(e) => handleMedicineChange(index, 'dosage', e.target.value)}
+                    placeholder="e.g., 500mg"
+                    variant="glass"
+                  />
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Frequency *
-                    </label>
-                    <input
-                      type="text"
-                      value={medicine.frequency}
-                      onChange={(e) => handleMedicineChange(index, 'frequency', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., Twice daily"
-                    />
-                  </div>
+                  <Input
+                    label="Frequency *"
+                    value={medicine.frequency}
+                    onChange={(e) => handleMedicineChange(index, 'frequency', e.target.value)}
+                    placeholder="e.g., Twice daily"
+                    variant="glass"
+                  />
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Duration *
-                    </label>
-                    <input
-                      type="text"
-                      value={medicine.duration}
-                      onChange={(e) => handleMedicineChange(index, 'duration', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="e.g., 7 days"
-                    />
-                  </div>
+                  <Input
+                    label="Duration *"
+                    value={medicine.duration}
+                    onChange={(e) => handleMedicineChange(index, 'duration', e.target.value)}
+                    placeholder="e.g., 7 days"
+                    variant="glass"
+                  />
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
           
           <div className="mb-6">
-            <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700 mb-2">
-              Additional Notes
-            </label>
-            <textarea
-              id="additionalNotes"
-              rows={3}
+            <Input
+              label="Additional Notes"
               value={additionalNotes}
               onChange={(e) => setAdditionalNotes(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Any additional instructions or notes..."
+              variant="glass"
+              as="textarea"
+              rows={3}
             />
           </div>
           
           <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={() => navigate('/doctor/prescriptions')}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-            >
+            <Button variant="secondary" type="button" onClick={() => navigate('/doctor/prescriptions')}>
               Cancel
-            </button>
-            <button
-              type="submit"
+            </Button>
+            <Button 
+              variant="primary" 
+              type="submit" 
               disabled={submitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+              className={submitting ? 'opacity-50 cursor-not-allowed' : ''}
             >
               {submitting ? 'Creating...' : 'Create Prescription'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
+      </GlowContainer>
     </div>
   );
 }
