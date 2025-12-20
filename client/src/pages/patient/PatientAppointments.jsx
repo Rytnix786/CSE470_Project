@@ -40,11 +40,18 @@ export default function PatientAppointments() {
   };
 
   const handleCancel = async (id) => {
-    if (!confirm('Are you sure you want to cancel this appointment?')) return;
+    if (!confirm('Are you sure you want to cancel this appointment? Refund depends on timing policy.')) return;
 
     try {
-      await appointmentsAPI.cancelAppointment(id, { cancelReason: 'Patient cancellation' });
-      alert('Appointment cancelled successfully');
+      const response = await appointmentsAPI.cancelAppointment(id, { cancelReason: 'Patient cancellation' });
+      const refundAmount = response.data.refundAmount || 0;
+      
+      if (refundAmount > 0) {
+        alert(`Appointment cancelled successfully. Refund amount: ${refundAmount} BDT`);
+      } else {
+        alert('Appointment cancelled successfully. No refund (within 24h policy).');
+      }
+      
       fetchAppointments();
     } catch (error) {
       alert('Error: ' + error.message);
@@ -96,12 +103,20 @@ export default function PatientAppointments() {
                   </>
                 )}
                 {apt.status === 'CONFIRMED' && (
-                  <button
-                    onClick={() => navigate(`/appointments/${apt._id}/chat`)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
-                  >
-                    Start Consultation
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/appointments/${apt._id}/chat`)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+                    >
+                      Start Consultation
+                    </button>
+                    <button
+                      onClick={() => handleCancel(apt._id)}
+                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

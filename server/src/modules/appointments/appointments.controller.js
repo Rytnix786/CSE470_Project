@@ -1,6 +1,7 @@
 const Appointment = require('../../models/Appointment');
 const AvailabilitySlot = require('../../models/AvailabilitySlot');
 const DoctorProfile = require('../../models/DoctorProfile');
+const Payment = require('../../models/Payment');
 const { sendEmail } = require('../../config/email');
 
 // Patient books an appointment
@@ -127,6 +128,71 @@ const cancelAppointment = async (req, res) => {
       });
     }
 
+    // Handle refund if appointment is CONFIRMED and has payment
+    let refundAmount = 0;
+    let refundMessage = '';
+    
+    if (appointment.status === 'CONFIRMED') {
+      // Find payment for this appointment
+      const payment = await Payment.findOne({ appointmentId: id });
+      
+      if (payment && payment.status === 'SUCCESS') {
+        // Calculate refund based on time policy
+        const appointmentDate = new Date(appointment.slotId.date);
+        const currentTime = new Date();
+        const timeDiffHours = Math.abs(appointmentDate - currentTime) / (1000 * 60 * 60);
+        
+        // Refund policy:
+        // - Full refund if > 48 hours before appointment
+        // - 50% refund if 24-48 hours before appointment
+        // - No refund if < 24 hours before appointment
+        
+        if (timeDiffHours > 48) {
+          // Full refund
+          refundAmount = payment.amount;
+          payment.status = 'REFUNDED';
+          await payment.save();
+          refundMessage = `Full refund of ${refundAmount} BDT will be processed.`;
+        } else if (timeDiffHours > 24) {
+          // 50% refund
+          refundAmount = payment.amount * 0.5;
+          payment.status = 'REFUNDED';
+          await payment.save();
+          refundMessage = `50% refund of ${refundAmount} BDT will be processed.`;
+        } else {
+          // No refund
+          refundMessage = 'No refund (within 24h policy).';
+        }
+        
+        // Send refund email notification
+        if (refundAmount > 0) {
+          await sendEmail({
+            to: appointment.patientId.email,
+            subject: 'Appointment Cancellation & Refund - BRACU Consultation System',
+            html: `
+              <h2>Appointment Cancelled</h2>
+              <p>Hi ${appointment.patientId.name},</p>
+              <p>Your appointment has been cancelled.</p>
+              <p><strong>Refund Amount:</strong> ${refundAmount} ${payment.currency}</p>
+              <p>${refundMessage}</p>
+              <p>The refund will reflect in your account within 5-7 business days.</p>
+            `,
+          });
+        } else {
+          await sendEmail({
+            to: appointment.patientId.email,
+            subject: 'Appointment Cancellation - BRACU Consultation System',
+            html: `
+              <h2>Appointment Cancelled</h2>
+              <p>Hi ${appointment.patientId.name},</p>
+              <p>Your appointment has been cancelled.</p>
+              <p>${refundMessage}</p>
+            `,
+          });
+        }
+      }
+    }
+
     appointment.status = 'CANCELLED';
     appointment.cancelReason = cancelReason || '';
     await appointment.save();
@@ -140,8 +206,8 @@ const cancelAppointment = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Appointment cancelled successfully',
-      data: { appointment },
+      message: `Appointment cancelled successfully. ${refundMessage}`,
+      data: { appointment, refundAmount },
     });
   } catch (error) {
     res.status(500).json({
