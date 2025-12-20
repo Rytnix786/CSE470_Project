@@ -46,6 +46,15 @@ const doctorProfileSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    avgRating: {
+      type: Number,
+      min: 0,
+      max: 5,
+    },
+    totalReviews: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

@@ -89,7 +89,16 @@ export const prescriptionsAPI = {
   createPrescription: (data) => api.post('/prescriptions', data),
   getPrescriptionByAppointment: (appointmentId) => api.get(`/prescriptions/appointment/${appointmentId}`),
   getMyPrescriptions: () => api.get('/prescriptions/me'),
+  getMyDoctorPrescriptions: () => api.get('/prescriptions/doctor/me'),
   getPatientPrescriptions: (patientId) => api.get(`/prescriptions/patient/${patientId}`),
+};
+
+// Reviews API
+export const reviewsAPI = {
+  createReview: (data) => api.post('/reviews', data),
+  getDoctorReviews: (doctorId) => api.get(`/reviews/doctor/${doctorId}`),
+  getMyReviews: () => api.get('/reviews/me'),
+  getReviewByAppointment: (appointmentId) => api.get(`/reviews/appointment/${appointmentId}`),
 };
 
 // Health Records API

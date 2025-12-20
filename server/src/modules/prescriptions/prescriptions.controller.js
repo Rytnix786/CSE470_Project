@@ -40,7 +40,7 @@ const createPrescription = async (req, res) => {
     const prescription = await Prescription.create({
       appointmentId,
       doctorId,
-      patientId,
+      patientId: patientId || appointment.patientId._id, // Use appointment's patientId if not provided
       items,
       diagnosis: diagnosis || '',
       additionalNotes: additionalNotes || '',
@@ -65,6 +65,19 @@ const createPrescription = async (req, res) => {
       data: { prescription },
     });
   } catch (error) {
+    // Log validation errors specifically
+    if (error.name === 'ZodError') {
+      const validationErrors = error.issues.map(issue => ({
+        path: issue.path,
+        message: issue.message
+      }));
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: validationErrors
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: error.message,
@@ -161,9 +174,32 @@ const getMyPrescriptions = async (req, res) => {
   }
 };
 
+// Get doctor's prescriptions
+const getMyDoctorPrescriptions = async (req, res) => {
+  try {
+    const doctorId = req.user._id;
+
+    const prescriptions = await Prescription.find({ doctorId })
+      .populate('patientId', 'name email')
+      .populate('appointmentId')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: { prescriptions },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createPrescription,
   getPrescriptionByAppointment,
   getPatientPrescriptions,
   getMyPrescriptions,
+  getMyDoctorPrescriptions,
 };

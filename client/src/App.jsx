@@ -8,11 +8,16 @@ import DoctorsList from './pages/DoctorsList';
 import DoctorProfile from './pages/doctor/DoctorProfile';
 import ManageSlots from './pages/doctor/ManageSlots';
 import DoctorAppointments from './pages/doctor/DoctorAppointments';
+import DoctorPrescriptions from './pages/doctor/DoctorPrescriptions';
+import CreatePrescription from './pages/doctor/CreatePrescription';
 import VerifyDoctors from './pages/admin/VerifyDoctors';
 import PatientAppointments from './pages/patient/PatientAppointments';
 import PrescriptionsList from './pages/patient/PrescriptionsList';
+import PatientPrescriptions from './pages/patient/PatientPrescriptions';
+import PatientReviews from './pages/patient/PatientReviews';
 import HealthRecords from './pages/patient/HealthRecords';
 import ConsultationChat from './pages/ConsultationChat';
+import LeaveReview from './pages/patient/LeaveReview';
 
 function App() {
   return (
@@ -48,6 +53,18 @@ function App() {
               </ProtectedRoute>
             } />
             
+            <Route path="/doctor/prescriptions" element={
+              <ProtectedRoute roles={['DOCTOR']}>
+                <DoctorPrescriptions />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/doctor/prescriptions/create/:appointmentId" element={
+              <ProtectedRoute roles={['DOCTOR']}>
+                <CreatePrescription />
+              </ProtectedRoute>
+            } />
+            
             <Route path="/admin/verify-doctors" element={
               <ProtectedRoute roles={['ADMIN']}>
                 <VerifyDoctors />
@@ -66,9 +83,21 @@ function App() {
               </ProtectedRoute>
             } />
             
-            <Route path="/prescriptions" element={
+            <Route path="/appointments/:id/review" element={
               <ProtectedRoute roles={['PATIENT']}>
-                <PrescriptionsList />
+                <LeaveReview />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/patient/reviews" element={
+              <ProtectedRoute roles={['PATIENT']}>
+                <PatientReviews />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/patient/prescriptions" element={
+              <ProtectedRoute roles={['PATIENT']}>
+                <PatientPrescriptions />
               </ProtectedRoute>
             } />
             

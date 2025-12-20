@@ -27,6 +27,7 @@ app.use('/api', require('./modules/chat/chat.routes'));
 app.use('/api', require('./modules/prescriptions/prescriptions.routes'));
 app.use('/api', require('./modules/healthRecords/healthRecords.routes'));
 app.use('/api', require('./modules/upload/upload.routes'));
+app.use('/api/reviews', require('./modules/reviews/reviews.routes'));
 
 // Health check
 app.get('/health', (req, res) => {

@@ -7,6 +7,7 @@ const {
   getPrescriptionByAppointment,
   getPatientPrescriptions,
   getMyPrescriptions,
+  getMyDoctorPrescriptions,
 } = require('./prescriptions.controller');
 const { createPrescriptionSchema } = require('./prescriptions.validation');
 
@@ -14,5 +15,6 @@ router.post('/prescriptions', requireAuth, requireRole('DOCTOR'), validate(creat
 router.get('/prescriptions/appointment/:appointmentId', requireAuth, getPrescriptionByAppointment);
 router.get('/prescriptions/patient/:patientId', requireAuth, getPatientPrescriptions);
 router.get('/prescriptions/me', requireAuth, requireRole('PATIENT'), getMyPrescriptions);
+router.get('/prescriptions/doctor/me', requireAuth, requireRole('DOCTOR'), getMyDoctorPrescriptions);
 
 module.exports = router;

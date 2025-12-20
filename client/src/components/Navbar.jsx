@@ -23,8 +23,11 @@ export default function Navbar() {
                     <Link to="/appointments" className="inline-flex items-center px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg">
                       Appointments
                     </Link>
-                    <Link to="/prescriptions" className="inline-flex items-center px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg">
+                    <Link to="/patient/prescriptions" className="inline-flex items-center px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg">
                       Prescriptions
+                    </Link>
+                    <Link to="/patient/reviews" className="inline-flex items-center px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg">
+                      Reviews
                     </Link>
                     <Link to="/health-records" className="inline-flex items-center px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg">
                       Health Records
@@ -42,6 +45,9 @@ export default function Navbar() {
                     </Link>
                     <Link to="/doctor/appointments" className="inline-flex items-center px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg">
                       Appointments
+                    </Link>
+                    <Link to="/doctor/prescriptions" className="inline-flex items-center px-3 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg">
+                      Prescriptions
                     </Link>
                   </>
                 )}
