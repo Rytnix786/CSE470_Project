@@ -307,7 +307,7 @@ The notification system implements robust security measures:
 
 ## Authors
 
-This project was developed as part of the CSE470: Software Engineering course at BRAC University by Mehedi Hasan.
+This project was developed as part of the CSE470: Software Engineering course at BRAC University.
 
 **Course**: CSE470 - Software Engineering  
 **University**: BRAC University  
