@@ -2,117 +2,136 @@
 
 ## Overview
 
-BRACU Health is a comprehensive digital healthcare platform designed to facilitate secure and efficient communication between patients and healthcare providers. Built with modern web technologies, this full-stack application provides a complete telemedicine solution featuring appointment scheduling, real-time consultation, electronic prescriptions, and health record management.
+**BRACU Health** is a full-stack doctor–patient consultation system designed to digitize the complete healthcare consultation lifecycle. The platform enables patients to discover verified doctors, book appointments, complete payments, consult in real time, receive prescriptions, and manage personal health records through a secure and user-friendly interface.
 
-The system implements robust role-based access control (RBAC) to ensure data privacy and security across three distinct user types: patients, doctors, and administrators. All medical data is handled with strict confidentiality protocols, adhering to healthcare data protection standards.
+The system enforces **strict Role-Based Access Control (RBAC)** to ensure medical data privacy and security across three distinct user roles: **Patient**, **Doctor**, and **Administrator**. Each role is provided with clearly defined capabilities, ensuring proper data isolation and compliance with healthcare privacy principles.
+
+Developed as part of the **CSE470: Software Engineering** course at **BRAC University**, this project emphasizes system correctness, security, scalability, and professional user experience.
+
+---
 
 ## Key Capabilities
 
-- **Appointment Management**: Schedule, reschedule, and cancel medical consultations with verified healthcare professionals
-- **Secure Payment Processing**: Integrated payment gateway with automated refund policies for canceled appointments
-- **Real-time Consultation**: HIPAA-compliant chat system with file sharing capabilities for medical documents
-- **Electronic Prescriptions**: Digital prescription creation and management with secure patient access
-- **Health Record Tracking**: Comprehensive health monitoring with blood pressure, blood sugar, weight, and height tracking
-- **Health Snapshot Dashboard**: Visual representation of patient health metrics with trend analysis
-- **Role-based Notifications**: Secure, scoped notification system for all user interactions and system updates
+- **Appointment Management**: Book, reschedule, and cancel consultations with verified doctors
+- **Secure Payment Processing**: Integrated payment flow with automated refund policy
+- **Real-time Consultation**: Secure chat-based consultation with file sharing support
+- **Electronic Prescriptions**: Digital prescription creation and patient access
+- **Health Record Management**: Track vital health metrics securely
+- **Health Snapshot Dashboard**: Visual overview of recent patient health metrics
+- **Role-based Notifications**: Secure, scoped notification system for system events
+- **RBAC Enforcement**: Strong role-based authorization and data isolation
+
+---
 
 ## Features by Role
 
 ### Patient
 
 - Search and browse verified doctors by specialization and availability
-- Book, reschedule, and cancel appointments with healthcare providers
-- Secure online payment processing with refund policy support
-- Real-time consultation chat with file sharing capabilities
-- Submit reviews and ratings for completed consultations
-- Maintain personal health records with vital statistics tracking
-- Access Health Snapshot dashboard for health trend visualization
-- View and download electronic prescriptions from healthcare providers
-- Receive role-specific notifications for appointment updates, payments, and prescriptions
+- Book, reschedule, and cancel appointments
+- Secure online payment with refund policy support
+- Real-time consultation chat with doctors
+- Submit reviews and ratings after completed consultations
+- Maintain personal health records (blood pressure, blood sugar, weight, height)
+- View Health Snapshot dashboard
+- Access and download electronic prescriptions
+- Receive notifications for appointments, payments, and prescriptions
 
 ### Doctor
 
-- Create and manage professional profile with verification credentials
-- Define availability schedules with customizable time slots
-- Conduct real-time consultations with patients via secure chat
-- Issue electronic prescriptions with medication details and instructions
-- Access comprehensive patient health records and history
-- View Health Snapshot for patient health trend analysis
-- Review patient feedback and ratings for continuous improvement
-- Receive notifications for appointment bookings, cancellations, and patient actions
+- Create and manage professional profile
+- Define availability schedules with time slots
+- View and manage assigned appointments
+- Conduct secure real-time consultations
+- Create and issue electronic prescriptions
+- Access authorized patient health records and Health Snapshot
+- View patient reviews and average ratings
+- Receive notifications for appointment-related events
 
 ### Administrator
 
-- Verify doctor credentials and professional licenses
-- Manage platform users and resolve account issues
-- Monitor system activity and platform analytics
-- Receive notifications for new doctor verification requests
+- Verify and approve doctor registrations
+- Manage platform users
+- Monitor system activity at a high level
+- Receive notifications for doctor verification requests
+
+---
 
 ## Core System Modules
 
 ### Appointments & Payments
 
-The appointment system enables patients to browse doctor availability and schedule consultations. Integrated payment processing supports secure transactions with a comprehensive refund policy:
-- Full refund for cancellations more than 48 hours before appointment
-- 50% refund for cancellations between 24-48 hours before appointment
-- No refund for cancellations within 24 hours of appointment
+Patients can browse doctor availability and schedule appointments. The payment system supports secure transactions and applies an automated refund policy:
+
+- **Full refund** for cancellations more than 48 hours before appointment
+- **50% refund** for cancellations between 24–48 hours
+- **No refund** for cancellations within 24 hours
 
 ### Health Records & Health Snapshot
 
-Patients can maintain comprehensive health records including blood pressure, blood sugar levels, weight, and height measurements. The Health Snapshot dashboard provides visual representations of health trends over time, enabling both patients and doctors to monitor health progress effectively.
+Patients can maintain personal health records including blood pressure, blood sugar levels, weight, and height. The **Health Snapshot** dashboard provides a concise visual summary of the most recent health metrics, accessible to both patients and authorized doctors.
 
 ### Consultation & Prescriptions
 
-The real-time consultation system facilitates secure communication between patients and doctors through a HIPAA-compliant chat interface. Doctors can issue electronic prescriptions directly within the platform, which patients can access and download for pharmacy fulfillment.
+The consultation module enables secure, real-time communication between doctors and patients. Doctors can issue electronic prescriptions directly through the system, which patients can view and download.
+
+---
 
 ## Notification System
 
-The notification system is a secure, role-scoped subsystem that ensures users receive relevant updates while maintaining strict data privacy. Notifications are delivered through a centralized system with intelligent filtering based on:
-- **recipientUserId**: Direct notifications to specific users
-- **recipientRole**: Broadcast notifications to entire user roles
+The notification system is a secure, role-scoped subsystem designed to ensure users receive relevant updates without cross-role data leakage.
 
-### Supported Event Types
+### Notification Scoping
 
-- **Appointment Events**: Booking confirmations, cancellations, and rescheduling
-- **Payment Events**: Transaction confirmations and refund processing
-- **Prescription Events**: New prescription issuance from healthcare providers
-- **Verification Events**: Doctor credential verification requests for administrators
+Notifications are delivered using:
+- **recipientUserId** — for user-specific notifications
+- **recipientRole** — for role-specific notifications (e.g., admin alerts)
+
+### Supported Events
+
+- Appointment bookings, cancellations, and status updates
+- Payment confirmations and refunds
+- Prescription creation
+- Doctor verification requests and decisions
 
 ### API Endpoints
 
-- `GET /api/notifications` - Retrieve notifications for the authenticated user
-- `PATCH /api/notifications/:id/read` - Mark specific notification as read
-- `PATCH /api/notifications/read-all` - Mark all notifications as read
+- `GET /api/notifications` — Retrieve notifications for authenticated user
+- `PATCH /api/notifications/:id/read` — Mark a notification as read
+- `PATCH /api/notifications/read-all` — Mark all notifications as read
 
-### User Interface
+### User Interface Features
 
-The notification system features a responsive bell icon interface with:
-- Real-time unread count indicators
-- Type-specific badges for quick identification
-- Role-appropriate empty states for each user type
-- Loading skeletons for enhanced user experience
-- Secure read/unread status management
+- Notification bell with unread count
+- Type-based badges (Appointment, Payment, Prescription, Verification)
+- Role-specific empty states
+- Secure read/unread handling
+- Loading skeletons for smooth UX
+
+---
 
 ## Tech Stack
 
 ### Frontend
-- React.js for component-based user interface
-- Tailwind CSS for responsive, utility-first styling
-- React Router for client-side navigation
-- Axios for HTTP client communication
+- React.js
+- Tailwind CSS
+- React Router
+- Axios
 
 ### Backend
-- Node.js runtime environment
-- Express.js web application framework
-- MongoDB NoSQL database with Mongoose ODM
+- Node.js
+- Express.js
+- MongoDB with Mongoose
 - Socket.IO for real-time communication
-- JSON Web Tokens (JWT) for authentication
+- JSON Web Tokens (JWT)
 
 ### Security & Validation
-- Zod for request validation and data sanitization
+- Zod for request validation
 - bcrypt.js for password hashing
-- Helmet.js for HTTP header security
-- CORS configuration for cross-origin resource sharing
+- Helmet.js for HTTP security headers
+- CORS configuration
+
+---
 
 ## Project Structure
 
@@ -288,7 +307,7 @@ The notification system implements robust security measures:
 
 ## Authors
 
-This project was developed as part of the CSE470: Software Engineering course at BRAC University.
+This project was developed as part of the CSE470: Software Engineering course at BRAC University by Mehedi Hasan.
 
 **Course**: CSE470 - Software Engineering  
 **University**: BRAC University  
