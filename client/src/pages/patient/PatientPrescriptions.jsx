@@ -8,6 +8,7 @@ export default function PatientPrescriptions() {
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
 
   useEffect(() => {
     fetchPrescriptions();

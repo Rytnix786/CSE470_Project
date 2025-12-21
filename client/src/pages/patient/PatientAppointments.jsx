@@ -6,6 +6,7 @@ export default function PatientAppointments() {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
+  
 
   useEffect(() => {
     fetchAppointments();

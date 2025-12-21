@@ -11,7 +11,7 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({ children, onLogout }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -62,6 +62,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    // Call the onLogout callback if provided
+    if (onLogout) {
+      onLogout();
+    }
   };
 
   const value = {

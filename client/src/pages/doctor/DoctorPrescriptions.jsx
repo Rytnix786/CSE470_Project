@@ -14,6 +14,7 @@ export default function DoctorPrescriptions() {
   const [prescriptionHistory, setPrescriptionHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
 
   useEffect(() => {
     fetchPrescriptionData();

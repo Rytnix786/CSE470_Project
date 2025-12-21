@@ -4,6 +4,7 @@ import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Label from '../../components/ui/Label';
 import Textarea from '../../components/ui/Textarea';
+import DoctorTrustBadge from '../../components/doctor/DoctorTrustBadge';
 
 export default function DoctorProfile() {
   const [profile, setProfile] = useState(null);
@@ -58,17 +59,49 @@ export default function DoctorProfile() {
       <h1 className="text-3xl font-bold mb-6 text-slate-900 dark:text-slate-100">Doctor Profile</h1>
 
       {profile && (
-        <Card className="p-4 mb-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-          <p className="font-semibold text-slate-900 dark:text-slate-100">Status: {profile.verificationStatus}</p>
-          {profile.verificationStatus === 'PENDING' && (
-            <p className="text-sm text-slate-600 dark:text-slate-400">Your profile is awaiting admin verification</p>
-          )}
-          {profile.verificationStatus === 'VERIFIED' && (
-            <p className="text-sm text-green-600 dark:text-green-400">Your profile is verified! You can now receive bookings.</p>
-          )}
-          {profile.verificationStatus === 'REJECTED' && (
-            <p className="text-sm text-red-600 dark:text-red-400">Rejected: {profile.rejectionReason}</p>
-          )}
+        <Card className="p-6 mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-shrink-0">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
+                {profile.userId.name.charAt(0)}
+              </div>
+            </div>
+            
+            <div className="flex-grow">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Dr. {profile.userId.name}</h2>
+              
+              <DoctorTrustBadge 
+                rating={profile.avgRating || 0}
+                totalReviews={profile.totalReviews || 0}
+                specialization={profile.specialization}
+                experienceYears={profile.experienceYears}
+                isVerified={profile.verificationStatus === 'VERIFIED'}
+              />
+              
+              <div className="mt-3">
+                <p className="font-semibold text-slate-900 dark:text-slate-100">Profile Status: 
+                  <span className={`ml-2 font-bold ${
+                    profile.verificationStatus === 'VERIFIED' 
+                      ? 'text-green-600 dark:text-green-400' 
+                      : profile.verificationStatus === 'PENDING' 
+                        ? 'text-yellow-600 dark:text-yellow-400' 
+                        : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {profile.verificationStatus}
+                  </span>
+                </p>
+                {profile.verificationStatus === 'PENDING' && (
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Your profile is awaiting admin verification</p>
+                )}
+                {profile.verificationStatus === 'VERIFIED' && (
+                  <p className="text-sm text-green-600 dark:text-green-400">Your profile is verified! You can now receive bookings.</p>
+                )}
+                {profile.verificationStatus === 'REJECTED' && (
+                  <p className="text-sm text-red-600 dark:text-red-400">Rejected: {profile.rejectionReason}</p>
+                )}
+              </div>
+            </div>
+          </div>
         </Card>
       )}
 

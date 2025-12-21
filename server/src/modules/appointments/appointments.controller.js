@@ -3,6 +3,7 @@ const AvailabilitySlot = require('../../models/AvailabilitySlot');
 const DoctorProfile = require('../../models/DoctorProfile');
 const Payment = require('../../models/Payment');
 const { sendEmail } = require('../../config/email');
+const { createAppointmentNotification } = require('../../utils/notify');
 
 // Patient books an appointment
 const bookAppointment = async (req, res) => {
@@ -44,6 +45,9 @@ const bookAppointment = async (req, res) => {
     // Mark slot as booked
     slot.isBooked = true;
     await slot.save();
+
+    // Create notification for doctor
+    await createAppointmentNotification(appointment, 'BOOKED');
 
     // Populate details
     await appointment.populate([
@@ -203,6 +207,9 @@ const cancelAppointment = async (req, res) => {
       slot.isBooked = false;
       await slot.save();
     }
+
+    // Create notification for cancellation
+    await createAppointmentNotification(appointment, 'CANCELLED');
 
     res.json({
       success: true,

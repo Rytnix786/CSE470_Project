@@ -2,6 +2,7 @@ const DoctorProfile = require('../../models/DoctorProfile');
 const User = require('../../models/User');
 const AvailabilitySlot = require('../../models/AvailabilitySlot');
 const { sendEmail } = require('../../config/email');
+const { createVerificationNotification } = require('../../utils/notify');
 
 // Doctor creates/updates their profile
 const createOrUpdateProfile = async (req, res) => {
@@ -201,6 +202,9 @@ const verifyDoctor = async (req, res) => {
       profile.rejectionReason = rejectionReason;
     }
     await profile.save();
+
+    // Create verification notification
+    await createVerificationNotification(profile, status, rejectionReason);
 
     // Send notification email
     const statusText = status === 'VERIFIED' ? 'verified' : 'rejected';

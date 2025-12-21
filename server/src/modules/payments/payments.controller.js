@@ -3,6 +3,7 @@ const Payment = require('../../models/Payment');
 const Appointment = require('../../models/Appointment');
 const DoctorProfile = require('../../models/DoctorProfile');
 const { sendEmail } = require('../../config/email');
+const { createPaymentNotification } = require('../../utils/notify');
 
 // Initialize payment
 const initPayment = async (req, res) => {
@@ -114,6 +115,9 @@ const confirmPayment = async (req, res) => {
     appointment.status = 'CONFIRMED';
     await appointment.save();
 
+    // Create payment success notification
+    await createPaymentNotification(payment, 'SUCCESS');
+
     // Send receipt email
     await sendEmail({
       to: appointment.patientId.email,
@@ -180,6 +184,9 @@ const refundPayment = async (req, res) => {
     const appointment = await Appointment.findById(appointmentId);
     appointment.status = 'CANCELLED';
     await appointment.save();
+
+    // Create refund notification
+    await createPaymentNotification(payment, 'REFUNDED');
 
     // Send refund email
     await sendEmail({

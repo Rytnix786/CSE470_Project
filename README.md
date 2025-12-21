@@ -2,6 +2,35 @@
 
 BRACU Health is a full-stack doctor–patient consultation system with secure authentication and role-based access control.
 
+## 🔔 Notification System (Scoped & Secure)
+
+The notification system solves critical privacy issues where all roles could previously see all notifications. Now, notifications are securely scoped to individual recipients.
+
+### How Scoping Works
+- Each notification has `recipientUserId` (specific user) or `recipientRole` (broadcast to role)
+- Backend enforces strict access control - users can only read/mark notifications intended for them
+- Cross-role leakage eliminated through database-level filtering
+
+### Supported Event Types
+- **Appointment**: Booking confirmation, cancellation, rescheduling
+- **Payment/Refund**: Transaction success, refund processing
+- **Prescription**: New prescription issued by doctor
+- **Doctor Verification**: Admin notifications for pending verification requests
+
+### API Endpoints
+- `GET /api/notifications` - Get notifications for current user
+- `PATCH /api/notifications/:id/read` - Mark specific notification as read
+- `PATCH /api/notifications/read-all` - Mark all notifications as read
+
+### UI Behavior
+- Type badges for quick identification (Appointment, Payment, Prescription, etc.)
+- Role-specific empty states (different messages for Patient, Doctor, Admin)
+- Loading skeletons for better UX during fetch
+- Safe click handling with navigation guards
+
+### Security Note
+Only the intended recipient can read or mark notifications as read. Unauthorized access attempts are blocked at the backend level.
+
 ## Key Features
 
 ### PATIENT
@@ -13,6 +42,7 @@ BRACU Health is a full-stack doctor–patient consultation system with secure au
 - Health records management (BP, Sugar, Weight, Height)
 - Health Snapshot dashboard
 - View prescriptions
+- Receive notifications for payments, prescriptions, and appointment updates
 
 ### DOCTOR
 
@@ -23,11 +53,13 @@ BRACU Health is a full-stack doctor–patient consultation system with secure au
 - Create prescriptions
 - View patient health records + Health Snapshot
 - View patient reviews & average rating
+- Receive notifications for appointment updates and patient actions
 
 ### ADMIN
 
 - Verify doctors
 - Manage platform users
+- Receive notifications for new doctor verification requests
 
 ## Tech Stack
 
@@ -101,10 +133,28 @@ bracu-consultation-system/
 
 ## Setup Instructions
 
-- Clone repo
-- Install dependencies (client & server)
-- Setup .env
-- Run backend and frontend
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   # Install server dependencies
+   cd server && npm install
+   
+   # Install client dependencies
+   cd ../client && npm install
+   ```
+3. Setup environment variables:
+   - Copy `.env.example` to `.env` in both `server/` and `client/` directories
+   - Configure `MONGODB_URI` in `server/.env`
+   - Configure `JWT_SECRET` in `server/.env`
+   - Configure `VITE_API_URL` and `VITE_SOCKET_URL` in `client/.env`
+4. Run the application:
+   ```bash
+   # Start server (from server directory)
+   npm run dev
+   
+   # Start client (from client directory)
+   npm run dev
+   ```
 
 ## Default Test Accounts
 
@@ -164,6 +214,31 @@ See `docs/API.md` for complete endpoint documentation or import `docs/postman-co
 #### Health Records
 - `POST /api/health-records` - Create health record
 - `GET /api/health-records/me` - Get user health records
+
+#### Notifications
+- `GET /api/notifications` - Get notifications for current user
+- `PATCH /api/notifications/:id/read` - Mark notification as read
+- `PATCH /api/notifications/read-all` - Mark all notifications as read
+
+## Security & RBAC
+
+### Role-Based Route Protection
+All API endpoints are protected with role-based access control:
+- Patient routes require `PATIENT` role
+- Doctor routes require `DOCTOR` role
+- Admin routes require `ADMIN` role
+- Public routes (doctor listings) require no authentication
+
+### Data Isolation Rules
+- Patients can only access their own appointments, prescriptions, and health records
+- Doctors can only access their own slots, appointments, and prescriptions
+- Admins can access verification requests but no patient/doctor data
+- All data access is filtered at the database query level
+
+### Notification Scoping
+- Enforced on backend with recipient-based filtering
+- Users cannot access notifications intended for other users or roles
+- Read operations are secured with authorization checks
 
 ## Testing Guide
 
@@ -259,6 +334,27 @@ See `docs/API.md` for complete endpoint documentation or import `docs/postman-co
 2. Build: `npm run build`
 3. Deploy `dist/` folder
 
+## Changelog / Recent Updates
+
+### Notification System
+- ✅ Implemented full notification system (server + client)
+- ✅ Fixed privacy issue where all roles saw all notifications
+- ✅ Added notifications module, model, controller, routes, utilities
+- ✅ Integrated notifications into appointments, payments, prescriptions, doctor verification
+- ✅ Added notifications API client + NotificationContext using real API
+- ✅ Notification UI: NotificationBell + NotificationPanel with type badges
+- ✅ Added role-specific empty states and safe click handling
+- ✅ Implemented read/read-all endpoints with security checks
+- ✅ Improved UX with loading skeletons and proper state management
+
+### Other Improvements
+- ✅ Fixed notification refetch issues on tab/route switching
+- ✅ Fixed stale notifications appearing on refresh
+- ✅ Enhanced UI/UX polish with modern components
+- ✅ Improved error handling and crash prevention
+- ✅ Added Height field to health records
+- ✅ Implemented patient-side cancellation with refund policy
+
 ## Important Notes
 
 - Do not commit .env
@@ -272,7 +368,3 @@ This is a CSE470 course project. For academic use only.
 ## License
 
 MIT License - Academic Project
-
-## Contact
-
-For questions: Contact BRACU CSE470 course instructors

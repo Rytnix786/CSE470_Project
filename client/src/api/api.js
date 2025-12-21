@@ -111,6 +111,13 @@ export const healthRecordsAPI = {
   deleteRecord: (id) => api.delete(`/health-records/${id}`),
 };
 
+// Notifications API
+export const notificationsAPI = {
+  getMyNotifications: () => api.get('/notifications'),
+  markAsRead: (id) => api.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => api.patch('/notifications/read-all'),
+};
+
 // Upload API
 export const uploadFile = async (file) => {
   const formData = new FormData();

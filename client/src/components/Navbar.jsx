@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from './ui/Button';
 import ThemeToggle from './ThemeToggle';
+import NotificationBell from './notifications/NotificationBell';
+import { useNotifications } from '../context/NotificationContext';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { notifications } = useNotifications();
 
   return (
     <nav className="bg-gray-900/80 backdrop-blur-lg border-b border-gray-800 sticky top-0 z-50 dark:bg-gray-950 dark:border-gray-700">
@@ -67,6 +70,7 @@ export default function Navbar() {
             <ThemeToggle />
             {user ? (
               <div className="flex items-center space-x-4">
+                <NotificationBell />
                 <span className="text-sm text-gray-400 hidden md:block dark:text-gray-300">
                   {user.name} <span className="text-gray-600 dark:text-gray-400">•</span> <span className="text-blue-400">{user.role}</span>
                 </span>

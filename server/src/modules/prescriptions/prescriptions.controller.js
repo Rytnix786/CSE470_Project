@@ -1,6 +1,7 @@
 const Prescription = require('../../models/Prescription');
 const Appointment = require('../../models/Appointment');
 const { sendEmail } = require('../../config/email');
+const { createPrescriptionNotification } = require('../../utils/notify');
 
 // Doctor creates prescription
 const createPrescription = async (req, res) => {
@@ -45,6 +46,9 @@ const createPrescription = async (req, res) => {
       diagnosis: diagnosis || '',
       additionalNotes: additionalNotes || '',
     });
+
+    // Create prescription notification
+    await createPrescriptionNotification(prescription);
 
     // Send email notification
     await sendEmail({

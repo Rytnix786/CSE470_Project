@@ -5,6 +5,7 @@ import { appointmentsAPI } from '../../api/api';
 export default function DoctorAppointments() {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
+  
 
   useEffect(() => {
     fetchAppointments();
