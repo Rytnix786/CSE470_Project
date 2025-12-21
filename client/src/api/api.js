@@ -44,6 +44,7 @@ export const doctorAPI = {
   getDoctorById: (id) => api.get(`/doctors/${id}`),
   getMyProfile: () => api.get('/doctor/me/profile'),
   createProfile: (data) => api.post('/doctor/me/profile', data),
+  requestReverification: () => api.post('/doctor/me/request-reverification'),
   getDoctorSlots: (doctorId, params) => api.get(`/doctors/${doctorId}/slots`, { params }),
 };
 
@@ -51,6 +52,18 @@ export const doctorAPI = {
 export const adminAPI = {
   getPendingDoctors: () => api.get('/admin/doctors/pending'),
   verifyDoctor: (doctorUserId, data) => api.patch(`/admin/doctors/${doctorUserId}/verify`, data),
+  // Admin Profile API
+  getMe: () => api.get('/admin/me'),
+  updateMe: (data) => api.patch('/admin/me', data),
+  changePassword: (data) => api.patch('/admin/me/password', data),
+  getAuditLogs: (params) => api.get('/admin/audit-logs', { params }),
+  getStats: () => api.get('/admin/stats'),
+  getAllDoctors: (params) => api.get('/admin/doctors', { params }),
+  // Doctor Management
+  suspendDoctor: (doctorUserId, data) => api.patch(`/admin/doctors/${doctorUserId}/suspend`, data),
+  unsuspendDoctor: (doctorUserId, data) => api.patch(`/admin/doctors/${doctorUserId}/unsuspend`, data),
+  deleteDoctor: (doctorUserId, data) => api.delete(`/admin/doctors/${doctorUserId}`, data),
+  updateDoctorProfile: (doctorUserId, data) => api.patch(`/admin/doctors/${doctorUserId}/profile`, data),
 };
 
 // Slots API

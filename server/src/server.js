@@ -7,6 +7,8 @@ const ChatMessage = require('./models/ChatMessage');
 const Appointment = require('./models/Appointment');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
+const { runMigration } = require('./utils/migration');
+const { ensureAdminExists } = require('./utils/seed');
 
 const PORT = process.env.PORT || 5000;
 
@@ -123,7 +125,13 @@ io.on('connection', (socket) => {
 });
 
 // Connect to database and start server
-connectDB().then(() => {
+connectDB().then(async () => {
+  // Run migration
+  await runMigration();
+  
+  // Ensure admin user exists in development
+  await ensureAdminExists();
+  
   server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);

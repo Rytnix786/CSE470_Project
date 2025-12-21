@@ -1,118 +1,48 @@
-require('dotenv').config();
-const connectDB = require('../config/database');
 const User = require('../models/User');
-const DoctorProfile = require('../models/DoctorProfile');
-const bcrypt = require('bcryptjs');
 
-const seedDatabase = async () => {
+/**
+ * Ensure a valid admin test account exists for development
+ * This function creates an admin account if it doesn't exist
+ * It does NOT overwrite existing users
+ * 
+ * Email: admin@bracu.ac.bd
+ * Password: Admin@123 (will be hashed correctly by pre-save hook)
+ * Role: ADMIN
+ */
+const ensureAdminExists = async () => {
+  // Only run in development environment
+  if (process.env.NODE_ENV !== 'development') {
+    return;
+  }
+
   try {
-    await connectDB();
+    // Check if admin user already exists
+    const existingAdmin = await User.findOne({ email: 'admin@bracu.ac.bd' });
+    
+    if (existingAdmin) {
+      console.log('✅ Admin user already exists, skipping creation');
+      return;
+    }
 
-    console.log('🌱 Seeding database...');
-
-    // Clear existing data
-    await User.deleteMany({});
-    await DoctorProfile.deleteMany({});
-
-    // Create admin user
-    const admin = await User.create({
-      name: 'Admin User',
+    // Create new admin user
+    const adminUser = new User({
+      name: 'System Administrator',
       email: 'admin@bracu.ac.bd',
-      password: 'Admin@123',
+      password: 'Admin@123', // Plain text - will be hashed by pre-save hook
       role: 'ADMIN',
-      isEmailVerified: true,
+      isEmailVerified: true, // Skip email verification for convenience
+      isActive: true
     });
 
-    console.log('✅ Admin created:', admin.email);
-
-    // Create sample doctors
-    const doctor1 = await User.create({
-      name: 'Dr. Sarah Ahmed',
-      email: 'doctor1@example.com',
-      password: 'Doctor@123',
-      role: 'DOCTOR',
-      isEmailVerified: true,
-    });
-
-    await DoctorProfile.create({
-      userId: doctor1._id,
-      specialization: 'Cardiology',
-      experienceYears: 10,
-      fee: 1500,
-      bio: 'Experienced cardiologist with expertise in heart disease prevention and treatment.',
-      licenseNo: 'BMDC-12345',
-      verificationStatus: 'VERIFIED',
-    });
-
-    const doctor2 = await User.create({
-      name: 'Dr. Mohammed Rahman',
-      email: 'doctor2@example.com',
-      password: 'Doctor@123',
-      role: 'DOCTOR',
-      isEmailVerified: true,
-    });
-
-    await DoctorProfile.create({
-      userId: doctor2._id,
-      specialization: 'Pediatrics',
-      experienceYears: 8,
-      fee: 1200,
-      bio: 'Specialized in child healthcare and development. Caring for children is my passion.',
-      licenseNo: 'BMDC-23456',
-      verificationStatus: 'VERIFIED',
-    });
-
-    const doctor3 = await User.create({
-      name: 'Dr. Fatima Khan',
-      email: 'doctor3@example.com',
-      password: 'Doctor@123',
-      role: 'DOCTOR',
-      isEmailVerified: true,
-    });
-
-    await DoctorProfile.create({
-      userId: doctor3._id,
-      specialization: 'Dermatology',
-      experienceYears: 6,
-      fee: 1000,
-      bio: 'Expert in skin conditions, acne treatment, and cosmetic dermatology.',
-      licenseNo: 'BMDC-34567',
-      verificationStatus: 'PENDING',
-    });
-
-    console.log('✅ Doctors created');
-
-    // Create sample patients
-    const patient1 = await User.create({
-      name: 'John Doe',
-      email: 'patient1@example.com',
-      password: 'Patient@123',
-      role: 'PATIENT',
-      isEmailVerified: true,
-    });
-
-    const patient2 = await User.create({
-      name: 'Jane Smith',
-      email: 'patient2@example.com',
-      password: 'Patient@123',
-      role: 'PATIENT',
-      isEmailVerified: true,
-    });
-
-    console.log('✅ Patients created');
-
-    console.log('\n🎉 Database seeded successfully!');
-    console.log('\n📝 Test Accounts:');
-    console.log('Admin:    admin@bracu.ac.bd / Admin@123');
-    console.log('Doctor:   doctor1@example.com / Doctor@123');
-    console.log('Patient:  patient1@example.com / Patient@123');
-    console.log('');
-
-    process.exit(0);
+    // Save user - pre-save hook will hash the password correctly
+    await adminUser.save();
+    
+    console.log('✅ Admin user created successfully');
+    console.log('📧 Email: admin@bracu.ac.bd');
+    console.log('🔑 Password: Admin@123 (hashed correctly)');
   } catch (error) {
-    console.error('❌ Seed error:', error);
-    process.exit(1);
+    console.error('❌ Error ensuring admin user exists:', error.message);
   }
 };
 
-seedDatabase();
+module.exports = { ensureAdminExists };

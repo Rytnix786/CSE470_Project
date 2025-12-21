@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNotifications } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { appointmentsAPI, paymentsAPI, prescriptionsAPI } from '../api/api';
+import { cleanDoctorName } from '../utils/doctorUtils';
 
 // Hook to automatically generate notifications based on user data
 export const useAutoNotifications = () => {
@@ -34,7 +35,7 @@ export const useAutoNotifications = () => {
             if (!existingNotification) {
               addNotification({
                 type: 'appointment',
-                message: `Appointment with ${user.role === 'PATIENT' ? 'Dr. ' + apt.doctorId.name : apt.patientId.name} confirmed for ${apt.slotId?.date} at ${apt.slotId?.startTime}`,
+                message: `Appointment with ${user.role === 'PATIENT' ? 'Dr. ' + cleanDoctorName(apt.doctorId.name) : apt.patientId.name} confirmed for ${apt.slotId?.date} at ${apt.slotId?.startTime}`,
                 appointmentId: apt._id,
                 status: 'confirmed'
               });
@@ -50,7 +51,7 @@ export const useAutoNotifications = () => {
             if (!existingNotification) {
               addNotification({
                 type: 'appointment',
-                message: `Appointment with ${user.role === 'PATIENT' ? 'Dr. ' + apt.doctorId.name : apt.patientId.name} has been cancelled`,
+                message: `Appointment with ${user.role === 'PATIENT' ? 'Dr. ' + cleanDoctorName(apt.doctorId.name) : apt.patientId.name} has been cancelled`,
                 appointmentId: apt._id,
                 status: 'cancelled'
               });
@@ -92,7 +93,7 @@ export const useAutoNotifications = () => {
                 if (!existingNotification) {
                   addNotification({
                     type: 'payment',
-                    message: `Payment of BDT ${payment.amount} for appointment with ${user.role === 'PATIENT' ? 'Dr. ' + apt.doctorId.name : apt.patientId.name} was successful`,
+                    message: `Payment of BDT ${payment.amount} for appointment with ${user.role === 'PATIENT' ? 'Dr. ' + cleanDoctorName(apt.doctorId.name) : apt.patientId.name} was successful`,
                     paymentId: payment._id,
                     status: 'success'
                   });
@@ -108,7 +109,7 @@ export const useAutoNotifications = () => {
                 if (!existingNotification) {
                   addNotification({
                     type: 'payment',
-                    message: `Payment of BDT ${payment.amount} for appointment with ${user.role === 'PATIENT' ? 'Dr. ' + apt.doctorId.name : apt.patientId.name} has been refunded`,
+                    message: `Payment of BDT ${payment.amount} for appointment with ${user.role === 'PATIENT' ? 'Dr. ' + cleanDoctorName(apt.doctorId.name) : apt.patientId.name} has been refunded`,
                     paymentId: payment._id,
                     status: 'refunded'
                   });
@@ -150,7 +151,7 @@ export const useAutoNotifications = () => {
           if (!existingNotification) {
             addNotification({
               type: 'prescription',
-              message: `New prescription received from Dr. ${prescription.doctorId.name}`,
+              message: `New prescription received from Dr. ${cleanDoctorName(prescription.doctorId.name)}`,
               prescriptionId: prescription._id
             });
           }

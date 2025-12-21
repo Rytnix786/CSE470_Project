@@ -58,9 +58,17 @@ export default function Navbar() {
                 )}
                 
                 {user.role === 'ADMIN' && (
-                  <Link to="/admin/verify-doctors" className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/50">
-                    Verify Doctors
-                  </Link>
+                  <>
+                    <Link to="/admin/verify-doctors" className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/50">
+                      Verify Doctors
+                    </Link>
+                    <Link to="/admin/manage-doctors" className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/50">
+                      Manage Doctors
+                    </Link>
+                    <Link to="/admin/profile" className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/50">
+                      Profile
+                    </Link>
+                  </>
                 )}
               </div>
             )}

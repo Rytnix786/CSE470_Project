@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { doctorAPI } from '../../api/api';
 import Card from '../../components/ui/Card';
 import DoctorTrustBadge from '../../components/doctor/DoctorTrustBadge';
+import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function ViewDoctorProfile() {
   const { id } = useParams();
@@ -78,7 +79,7 @@ export default function ViewDoctorProfile() {
           
           <div className="flex-grow">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-              Dr. {doctor.userId.name}
+              Dr. {cleanDoctorName(doctor.userId.name)}
             </h1>
             
             <DoctorTrustBadge 

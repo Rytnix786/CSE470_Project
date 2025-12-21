@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI, paymentsAPI } from '../../api/api';
+import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function PatientAppointments() {
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ export default function PatientAppointments() {
           <div key={apt._id} className="bg-white p-6 rounded-lg shadow dark:bg-slate-900/70 dark:border dark:border-slate-800">
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{apt.doctorId?.name}</h3>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Dr. {cleanDoctorName(apt.doctorId?.name)}</h3>
                 <p className="text-slate-600 dark:text-slate-400">Date: {apt.slotId?.date}</p>
                 <p className="text-slate-600 dark:text-slate-400">Time: {apt.slotId?.startTime} - {apt.slotId?.endTime}</p>
                 <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(apt.status)}`}>

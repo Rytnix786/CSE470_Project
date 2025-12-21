@@ -83,6 +83,15 @@ const login = async (req, res) => {
       });
     }
 
+    // Check if user is active (deleted accounts)
+    // Suspended doctors can still login but with restrictions
+    if (!user.isActive && user.deletedAt) {
+      return res.status(401).json({
+        success: false,
+        message: 'Account is deactivated',
+      });
+    }
+
     // Check password
     const isPasswordCorrect = await user.comparePassword(password);
 
@@ -118,10 +127,16 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const user = req.user;
+    
+    // Add isSuspended flag for doctors
+    const userData = user.toJSON();
+    if (user.role === 'DOCTOR' && user.suspendedAt) {
+      userData.isSuspended = true;
+    }
 
     res.json({
       success: true,
-      data: { user },
+      data: { user: userData },
     });
   } catch (error) {
     res.status(500).json({

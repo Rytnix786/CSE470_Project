@@ -39,7 +39,7 @@ const doctorProfileSchema = new mongoose.Schema(
     },
     verificationStatus: {
       type: String,
-      enum: ['PENDING', 'VERIFIED', 'REJECTED'],
+      enum: ['PENDING', 'VERIFIED', 'REJECTED', 'SUSPENDED'],
       default: 'PENDING',
     },
     rejectionReason: {

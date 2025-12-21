@@ -54,6 +54,10 @@ Developed as part of the **CSE470: Software Engineering** course at **BRAC Unive
 - Manage platform users
 - Monitor system activity at a high level
 - Receive notifications for doctor verification requests
+- Manage doctor accounts (edit profiles, suspend, unsuspend)
+- Admin profile management (update name, email, role, and password)
+- Admin audit logs for tracking administrative actions
+- Role-based enforcement for all admin operations
 
 ---
 
@@ -288,6 +292,13 @@ The system enforces comprehensive data isolation through:
 - Patient access restricted to personal appointments, prescriptions, and health records
 - Doctor access limited to their own availability slots, appointments, and prescriptions
 - Admin access confined to verification requests without patient/doctor data exposure
+
+### Administrative Security
+
+- All administrative actions are protected by `ADMIN` role enforcement
+- Sensitive operations (doctor verification, suspension, profile updates) are audited
+- Password updates use secure hashing with bcrypt and cannot be reversed
+- Partial (PATCH-style) updates are used to prevent accidental data overwrites
 
 ### Notification Security
 The notification system implements robust security measures:

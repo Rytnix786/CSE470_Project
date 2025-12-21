@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { prescriptionsAPI } from '../../api/api';
+import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function PrescriptionsList() {
   const [prescriptions, setPrescriptions] = useState([]);
@@ -26,7 +27,7 @@ export default function PrescriptionsList() {
           <div key={prescription._id} className="bg-white p-6 rounded-lg shadow">
             <div className="flex justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold">Dr. {prescription.doctorId?.name}</h3>
+                <h3 className="text-lg font-semibold">Dr. {cleanDoctorName(prescription.doctorId?.name)}</h3>
                 <p className="text-sm text-gray-600">{new Date(prescription.createdAt).toLocaleDateString()}</p>
               </div>
             </div>

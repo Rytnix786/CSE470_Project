@@ -7,7 +7,23 @@ const NotificationPanel = ({ notifications, loading, isOpen, onClose, onMarkAllA
   const navigate = useNavigate();
   // Removed automatic mark all as read on open to prevent unexpected behavior
 
-  const getIcon = (type) => {
+  const getIcon = (type, metadata = {}) => {
+    // For verification notifications, use action-specific icons
+    if (type === 'VERIFICATION' && metadata.action) {
+      switch (metadata.action) {
+        case 'VERIFIED':
+          return '✅';
+        case 'SUSPENDED':
+          return '❌';
+        case 'UNSUSPENDED':
+        case 'REJECTED':
+          return '⚠️';
+        default:
+          return '✅';
+      }
+    }
+    
+    // For other notification types
     switch (type) {
       case 'APPOINTMENT':
       case 'appointment':
@@ -49,7 +65,23 @@ const NotificationPanel = ({ notifications, loading, isOpen, onClose, onMarkAllA
     }
   };
 
-  const getTypeColor = (type) => {
+  const getTypeColor = (type, metadata = {}) => {
+    // For verification notifications, use action-specific colors
+    if (type === 'VERIFICATION' && metadata.action) {
+      switch (metadata.action) {
+        case 'VERIFIED':
+          return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+        case 'SUSPENDED':
+          return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+        case 'UNSUSPENDED':
+        case 'REJECTED':
+          return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
+        default:
+          return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+      }
+    }
+    
+    // For other notification types
     switch (type) {
       case 'APPOINTMENT':
       case 'appointment':
@@ -179,13 +211,13 @@ const NotificationPanel = ({ notifications, loading, isOpen, onClose, onMarkAllA
                 onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex items-start">
-                  <span className="text-xl mr-3 mt-0.5">{getIcon(notification.type)}</span>
+                  <span className="text-xl mr-3 mt-0.5">{getIcon(notification.type, notification.metadata)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start">
                       <p className={`text-sm ${notification.read ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-slate-100 font-medium'}`}>
                         {notification.message || 'No message'}
                       </p>
-                      <span className={`text-xs px-2 py-1 rounded-full ${getTypeColor(notification.type || 'default')}`}>
+                      <span className={`text-xs px-2 py-1 rounded-full ${getTypeColor(notification.type || 'default', notification.metadata || {})}`}>
                         {getTypeLabel(notification.type || 'default')}
                       </span>
                     </div>

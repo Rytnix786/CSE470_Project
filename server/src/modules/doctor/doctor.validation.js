@@ -14,7 +14,11 @@ const verifyDoctorSchema = z.object({
   rejectionReason: z.string().optional(),
 });
 
+// Request reverification schema (no body required)
+const requestReverificationSchema = z.object({});
+
 module.exports = {
   createProfileSchema,
   verifyDoctorSchema,
+  requestReverificationSchema,
 };

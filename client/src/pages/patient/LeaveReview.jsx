@@ -6,6 +6,7 @@ import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import GlowContainer from '../../components/ui/GlowContainer';
 import Input from '../../components/ui/Input';
+import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function LeaveReview() {
   const { id: appointmentId } = useParams();
@@ -103,7 +104,7 @@ export default function LeaveReview() {
         
         {appointment && (
           <Card variant="glass" className="mb-6">
-            <h2 className="font-semibold text-white">{appointment.doctorId?.name}</h2>
+            <h2 className="font-semibold text-white">Dr. {cleanDoctorName(appointment.doctorId?.name)}</h2>
             <p className="text-gray-400 mt-1">
               {appointment.slotId?.date} at {appointment.slotId?.startTime}
             </p>

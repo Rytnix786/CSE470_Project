@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import GlowContainer from '../../components/ui/GlowContainer';
 import Badge from '../../components/ui/Badge';
+import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function PatientReviews() {
   const navigate = useNavigate();
@@ -110,7 +111,7 @@ export default function PatientReviews() {
                 <Card key={appt._id} variant="glass" hoverable className="transition-all duration-300">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-white">{appt.doctorId?.name}</h3>
+                      <h3 className="text-lg font-semibold text-white">Dr. {cleanDoctorName(appt.doctorId?.name)}</h3>
                       <p className="text-gray-400 mt-1">Date: {appt.slotId?.date}</p>
                       <p className="text-gray-400">Time: {appt.slotId?.startTime} - {appt.slotId?.endTime}</p>
                     </div>
@@ -140,7 +141,7 @@ export default function PatientReviews() {
                 <Card key={review._id} variant="glass" hoverable className="transition-all duration-300">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-white">{review.doctorId?.name}</h3>
+                      <h3 className="text-lg font-semibold text-white">Dr. {cleanDoctorName(review.doctorId?.name)}</h3>
                       <div className="mt-2">
                         {renderStars(review.rating)}
                       </div>

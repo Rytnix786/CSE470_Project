@@ -5,6 +5,7 @@ import Input from '../../components/ui/Input';
 import Label from '../../components/ui/Label';
 import Textarea from '../../components/ui/Textarea';
 import DoctorTrustBadge from '../../components/doctor/DoctorTrustBadge';
+import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function DoctorProfile() {
   const [profile, setProfile] = useState(null);
@@ -54,6 +55,21 @@ export default function DoctorProfile() {
     }
   };
 
+  const handleRequestReverification = async () => {
+    setLoading(true);
+    setMessage('');
+
+    try {
+      await doctorAPI.requestReverification();
+      setMessage('Reverification request sent to admin successfully!');
+      fetchProfile();
+    } catch (error) {
+      setMessage('Error: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-slate-900 dark:text-slate-100">Doctor Profile</h1>
@@ -68,7 +84,7 @@ export default function DoctorProfile() {
             </div>
             
             <div className="flex-grow">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Dr. {profile.userId.name}</h2>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Dr. {cleanDoctorName(profile.userId.name)}</h2>
               
               <DoctorTrustBadge 
                 rating={profile.avgRating || 0}
@@ -85,7 +101,9 @@ export default function DoctorProfile() {
                       ? 'text-green-600 dark:text-green-400' 
                       : profile.verificationStatus === 'PENDING' 
                         ? 'text-yellow-600 dark:text-yellow-400' 
-                        : 'text-red-600 dark:text-red-400'
+                        : profile.verificationStatus === 'SUSPENDED' 
+                          ? 'text-orange-600 dark:text-orange-400' 
+                          : 'text-red-600 dark:text-red-400'
                   }`}>
                     {profile.verificationStatus}
                   </span>
@@ -99,7 +117,26 @@ export default function DoctorProfile() {
                 {profile.verificationStatus === 'REJECTED' && (
                   <p className="text-sm text-red-600 dark:text-red-400">Rejected: {profile.rejectionReason}</p>
                 )}
+                {profile.verificationStatus === 'SUSPENDED' && (
+                  <p className="text-sm text-orange-600 dark:text-orange-400">Your profile has been suspended.</p>
+                )}
               </div>
+              
+              {/* Request Re-verification Button */}
+              {(profile.verificationStatus === 'SUSPENDED' || profile.verificationStatus === 'REJECTED') && (
+                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <button
+                    onClick={handleRequestReverification}
+                    disabled={loading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
+                  >
+                    Request Re-Verification
+                  </button>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    Submit a request to have your profile reviewed again by an administrator.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </Card>

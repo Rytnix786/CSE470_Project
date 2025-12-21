@@ -159,7 +159,7 @@ const createVerificationNotification = async (profile, eventType, rejectionReaso
         type: 'VERIFICATION',
         title: 'Profile Verified',
         message: 'Your doctor profile has been verified',
-        metadata: { profileId: profile._id }
+        metadata: { profileId: profile._id, action: 'VERIFIED' }
       });
       break;
       
@@ -170,7 +170,7 @@ const createVerificationNotification = async (profile, eventType, rejectionReaso
         type: 'VERIFICATION',
         title: 'Profile Rejected',
         message: `Your doctor profile has been rejected${rejectionReason ? `: ${rejectionReason}` : ''}`,
-        metadata: { profileId: profile._id }
+        metadata: { profileId: profile._id, action: 'REJECTED' }
       });
       break;
   }

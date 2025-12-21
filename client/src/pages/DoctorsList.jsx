@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { doctorAPI, appointmentsAPI, paymentsAPI } from '../api/api';
 import Card from '../components/ui/Card';
 import DoctorTrustBadge from '../components/doctor/DoctorTrustBadge';
+import { cleanDoctorName } from '../utils/doctorUtils';
 
 export function DoctorsList() {
   const [doctors, setDoctors] = useState([]);
@@ -74,31 +75,39 @@ export function DoctorsList() {
       </Card>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {doctors.map((doctor) => (
-          <Card key={doctor._id} variant="glass" className="p-6 hover:scale-[1.02] transition-transform duration-300 cursor-pointer" onClick={() => navigate(`/doctors/${doctor.userId._id}`)}>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Dr. {doctor.userId.name}</h3>
-            
-            <DoctorTrustBadge 
-              rating={doctor.avgRating || 0}
-              totalReviews={doctor.totalReviews || 0}
-              specialization={doctor.specialization}
-              experienceYears={doctor.experienceYears}
-              isVerified={doctor.verificationStatus === 'VERIFIED'}
-            />
-            
-            <p className="text-lg font-bold mt-3 text-slate-900 dark:text-slate-100">BDT {doctor.fee}</p>
-            <p className="text-sm mt-2 text-slate-600 dark:text-slate-400 line-clamp-2">{doctor.bio}</p>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                viewSlots(doctor);
-              }}
-              className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-300"
-            >
-              View Available Slots
-            </button>
-          </Card>
-        ))}
+        {doctors.length > 0 ? (
+          doctors.map((doctor) => (
+            <Card key={doctor._id} variant="glass" className="p-6 hover:scale-[1.02] transition-transform duration-300 cursor-pointer" onClick={() => navigate(`/doctors/${doctor.userId._id}`)}>
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Dr. {cleanDoctorName(doctor.userId.name)}</h3>
+              
+              <DoctorTrustBadge 
+                rating={doctor.avgRating || 0}
+                totalReviews={doctor.totalReviews || 0}
+                specialization={doctor.specialization}
+                experienceYears={doctor.experienceYears}
+                isVerified={doctor.verificationStatus === 'VERIFIED'}
+              />
+              
+              <p className="text-lg font-bold mt-3 text-slate-900 dark:text-slate-100">BDT {doctor.fee}</p>
+              <p className="text-sm mt-2 text-slate-600 dark:text-slate-400 line-clamp-2">{doctor.bio}</p>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  viewSlots(doctor);
+                }}
+                className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition-colors duration-300"
+              >
+                View Available Slots
+              </button>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <div className="text-5xl mb-4">🩺</div>
+            <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">No verified doctors available yet</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">Ask an admin to verify doctors to get started.</p>
+          </div>
+        )}
       </div>
 
       {selectedDoctor && (

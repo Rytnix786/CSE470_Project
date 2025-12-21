@@ -3,6 +3,7 @@ import { prescriptionsAPI } from '../../api/api';
 import Card from '../../components/ui/Card';
 import GlowContainer from '../../components/ui/GlowContainer';
 import Badge from '../../components/ui/Badge';
+import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function PatientPrescriptions() {
   const [prescriptions, setPrescriptions] = useState([]);
@@ -65,7 +66,7 @@ export default function PatientPrescriptions() {
               <Card key={prescription._id} variant="glass" hoverable className="transition-all duration-300">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h2 className="text-xl font-semibold text-white">{prescription.doctorId?.name}</h2>
+                    <h2 className="text-xl font-semibold text-white">Dr. {cleanDoctorName(prescription.doctorId?.name)}</h2>
                     <p className="text-gray-400 mt-1">
                       Appointment: {prescription.appointmentId?.slotId?.date} at {prescription.appointmentId?.slotId?.startTime}
                     </p>

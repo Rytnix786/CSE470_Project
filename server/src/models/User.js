@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters'],
       select: false,
     },
+    phone: {
+      type: String,
+      default: null,
+    },
     role: {
       type: String,
       enum: ['PATIENT', 'DOCTOR', 'ADMIN'],
@@ -34,6 +38,18 @@ const userSchema = new mongoose.Schema(
     emailVerificationToken: {
       type: String,
       select: false,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    suspendedAt: {
+      type: Date,
+      default: null,
     },
   },
   {
