@@ -30,6 +30,7 @@ app.use('/api', require('./modules/upload/upload.routes'));
 app.use('/api/reviews', require('./modules/reviews/reviews.routes'));
 app.use('/api/notifications', require('./modules/notifications/notifications.routes'));
 app.use('/api', require('./modules/admin/admin.routes'));
+app.use('/api/reports', require('./modules/reports/reports.routes'));
 
 // Health check
 app.get('/health', (req, res) => {

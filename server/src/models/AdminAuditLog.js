@@ -9,7 +9,7 @@ const adminAuditLogSchema = new mongoose.Schema(
     },
     actionType: {
       type: String,
-      enum: ['VERIFY_DOCTOR', 'REJECT_DOCTOR', 'SUSPEND_DOCTOR', 'UNSUSPEND_DOCTOR', 'EDIT_DOCTOR', 'SOFT_DELETE_DOCTOR'],
+      enum: ['VERIFY_DOCTOR', 'REJECT_DOCTOR', 'SUSPEND_DOCTOR', 'UNSUSPEND_DOCTOR', 'EDIT_DOCTOR', 'SOFT_DELETE_DOCTOR', 'CREATE_REPORT', 'UPDATE_REPORT'],
       required: true,
     },
     targetType: {

@@ -14,10 +14,16 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(1, 'New password is required'),
 }).strict(); // Strict mode to reject unexpected fields
 
-// Suspend/unsuspend doctor schema
+// Suspend doctor schema
 const suspendDoctorSchema = z.object({
+  reason: z.string().min(1, 'Reason is required'),
   note: z.string().optional(),
-}).optional();
+}).strict();
+
+// Unsuspend doctor schema
+const unsuspendDoctorSchema = z.object({
+  note: z.string().optional(),
+}).strict();
 
 // Edit doctor profile schema
 const editDoctorProfileSchema = z.object({
@@ -32,5 +38,6 @@ module.exports = {
   updateAdminProfileSchema,
   changePasswordSchema,
   suspendDoctorSchema,
+  unsuspendDoctorSchema,
   editDoctorProfileSchema,
 };

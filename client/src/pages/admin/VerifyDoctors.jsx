@@ -98,11 +98,14 @@ export default function VerifyDoctors() {
                 <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Dr. {cleanDoctorName(doctor.userId.name)}</h3>
                 <p className="text-slate-600 dark:text-slate-400">{doctor.userId.email}</p>
                 {/* Show if this is a re-verification request */}
-                {doctor.userId?.suspendedAt && (
+                {doctor.reverificationRequestedAt && (
                   <div className="mt-2">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
                       Re-verification Request
                     </span>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Requested: {new Date(doctor.reverificationRequestedAt).toLocaleString()}
+                    </p>
                   </div>
                 )}
                 <div className="mt-4 grid grid-cols-2 gap-4">

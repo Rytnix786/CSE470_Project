@@ -59,11 +59,15 @@ export const adminAPI = {
   getAuditLogs: (params) => api.get('/admin/audit-logs', { params }),
   getStats: () => api.get('/admin/stats'),
   getAllDoctors: (params) => api.get('/admin/doctors', { params }),
+  getDoctorById: (doctorUserId) => api.get(`/admin/doctors/${doctorUserId}`),
   // Doctor Management
   suspendDoctor: (doctorUserId, data) => api.patch(`/admin/doctors/${doctorUserId}/suspend`, data),
   unsuspendDoctor: (doctorUserId, data) => api.patch(`/admin/doctors/${doctorUserId}/unsuspend`, data),
   deleteDoctor: (doctorUserId, data) => api.delete(`/admin/doctors/${doctorUserId}`, data),
   updateDoctorProfile: (doctorUserId, data) => api.patch(`/admin/doctors/${doctorUserId}/profile`, data),
+  // Doctor Evidence
+  getDoctorReviews: (doctorUserId) => api.get(`/admin/doctors/${doctorUserId}/reviews`),
+  getDoctorReports: (doctorUserId) => api.get(`/admin/doctors/${doctorUserId}/reports`),
 };
 
 // Slots API
@@ -129,6 +133,18 @@ export const notificationsAPI = {
   getMyNotifications: () => api.get('/notifications'),
   markAsRead: (id) => api.patch(`/notifications/${id}/read`),
   markAllAsRead: () => api.patch('/notifications/read-all'),
+};
+
+// Reports API
+export const reportsAPI = {
+  createReport: (data) => api.post('/reports', data),
+};
+
+// Admin Reports API
+export const adminReportsAPI = {
+  getReports: (params) => api.get('/reports', { params }),
+  getReportById: (id) => api.get(`/reports/${id}`),
+  updateReport: (id, data) => api.patch(`/reports/${id}`, data),
 };
 
 // Upload API

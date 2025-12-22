@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { appointmentsAPI, paymentsAPI } from '../../api/api';
 import { cleanDoctorName } from '../../utils/doctorUtils';
+import ReportDoctor from '../../components/doctor/ReportDoctor';
 
 export default function PatientAppointments() {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
   
 
   useEffect(() => {
@@ -60,6 +63,17 @@ export default function PatientAppointments() {
     }
   };
 
+  const handleReport = (appointment) => {
+    setSelectedAppointment(appointment);
+    setShowReportModal(true);
+  };
+
+  const handleReportSubmitted = () => {
+    alert('Report submitted successfully!');
+    setShowReportModal(false);
+    setSelectedAppointment(null);
+  };
+
   const getStatusColor = (status) => {
     const colors = {
       PENDING_PAYMENT: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
@@ -86,7 +100,7 @@ export default function PatientAppointments() {
                   {apt.status}
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {apt.status === 'PENDING_PAYMENT' && (
                   <>
                     <button
@@ -105,7 +119,7 @@ export default function PatientAppointments() {
                   </>
                 )}
                 {apt.status === 'CONFIRMED' && (
-                  <div className="flex gap-2">
+                  <>
                     <button
                       onClick={() => navigate(`/appointments/${apt._id}/chat`)}
                       className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
@@ -118,7 +132,15 @@ export default function PatientAppointments() {
                     >
                       Cancel
                     </button>
-                  </div>
+                  </>
+                )}
+                {(apt.status === 'CONFIRMED' || apt.status === 'COMPLETED' || apt.status === 'CANCELLED' || apt.status === 'RESCHEDULED') && (
+                  <button
+                    onClick={() => handleReport(apt)}
+                    className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-800"
+                  >
+                    Report Doctor
+                  </button>
                 )}
               </div>
             </div>
@@ -130,6 +152,21 @@ export default function PatientAppointments() {
           </div>
         )}
       </div>
+      
+      {/* Report Doctor Modal */}
+      {showReportModal && selectedAppointment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <ReportDoctor
+            doctorId={selectedAppointment.doctorId._id}
+            appointmentId={selectedAppointment._id}
+            onClose={() => {
+              setShowReportModal(false);
+              setSelectedAppointment(null);
+            }}
+            onReportSubmitted={handleReportSubmitted}
+          />
+        </div>
+      )}
     </div>
   );
 }

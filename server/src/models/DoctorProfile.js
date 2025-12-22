@@ -55,6 +55,10 @@ const doctorProfileSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    reverificationRequestedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

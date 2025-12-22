@@ -2,6 +2,8 @@ const User = require('../../models/User');
 const DoctorProfile = require('../../models/DoctorProfile');
 const AdminAuditLog = require('../../models/AdminAuditLog');
 const Appointment = require('../../models/Appointment');
+const Review = require('../../models/Review');
+const Report = require('../../models/Report');
 const { createNotification } = require('../../utils/notify');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
@@ -250,13 +252,21 @@ const getAuditLogs = async (req, res) => {
 const suspendDoctor = async (req, res) => {
   try {
     const { doctorUserId } = req.params;
-    const { note } = req.body;
+    const { reason, note } = req.body;
 
     // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(doctorUserId)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid doctor id',
+      });
+    }
+
+    // Validate reason is provided
+    if (!reason || reason.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Reason is required for suspension',
       });
     }
 
@@ -275,10 +285,34 @@ const suspendDoctor = async (req, res) => {
     await doctorUser.save();
 
     // Also update the doctor profile if it exists
-    await DoctorProfile.findOneAndUpdate(
+    console.log('DEBUG: Looking for doctor profile with userId:', doctorUserId);
+    const profileResult = await DoctorProfile.findOneAndUpdate(
       { userId: doctorUserId },
-      { verificationStatus: 'SUSPENDED' }
+      { verificationStatus: 'SUSPENDED' },
+      { new: true }
     );
+    console.log('DEBUG: Doctor profile update result:', profileResult);
+    if (profileResult) {
+      console.log('DEBUG: Updated profile verificationStatus:', profileResult.verificationStatus);
+    }
+    
+    // Check if profile was found and updated
+    if (!profileResult) {
+      console.log('DEBUG: WARNING - Doctor profile not found for update');
+      // Try to find the profile to see what's in the database
+      const existingProfile = await DoctorProfile.findOne({ userId: doctorUserId });
+      console.log('DEBUG: Existing profile in database:', existingProfile);
+      if (existingProfile) {
+        console.log('DEBUG: Existing profile verificationStatus:', existingProfile.verificationStatus);
+      }
+    }
+    
+    // Also log the actual doctor profile to see what's in the database
+    const actualProfile = await DoctorProfile.findOne({ userId: doctorUserId });
+    console.log('DEBUG: Actual doctor profile in database:', actualProfile);
+    if (actualProfile) {
+      console.log('DEBUG: Actual profile verificationStatus:', actualProfile.verificationStatus);
+    }
 
     // Create notification for the doctor
     await createNotification({
@@ -290,13 +324,13 @@ const suspendDoctor = async (req, res) => {
       metadata: { action: 'SUSPENDED' }
     });
 
-    // Log the action
+    // Log the action with reason
     await AdminAuditLog.create({
       adminId: req.user._id,
       actionType: 'SUSPEND_DOCTOR',
       targetType: 'DOCTOR',
       targetId: doctorUserId,
-      note: note || 'Doctor suspended by admin',
+      note: reason + (note ? ` - ${note}` : ''),
     });
 
     res.json({
@@ -335,10 +369,31 @@ const unsuspendDoctor = async (req, res) => {
       });
     }
 
+    // Find the doctor profile
+    const doctorProfile = await DoctorProfile.findOne({ userId: doctorUserId });
+    if (!doctorProfile) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor profile not found',
+      });
+    }
+
+    // Check if doctor has requested re-verification
+    if (doctorProfile.verificationStatus === 'SUSPENDED' && !doctorProfile.reverificationRequestedAt) {
+      return res.status(403).json({
+        success: false,
+        message: 'Doctor must request re-verification before unsuspending.',
+      });
+    }
+
     // Unsuspend the doctor but keep verification status as is
     doctorUser.isActive = true;
     doctorUser.suspendedAt = null;
     await doctorUser.save();
+
+    // Clear reverification requested flag
+    doctorProfile.reverificationRequestedAt = null;
+    await doctorProfile.save();
 
     // Create notification for the doctor
     await createNotification({
@@ -373,6 +428,59 @@ const unsuspendDoctor = async (req, res) => {
 };
 
 
+
+// Get doctor by userId
+const getDoctorById = async (req, res) => {
+  try {
+    const { doctorUserId } = req.params;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(doctorUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid doctor ID',
+      });
+    }
+
+    // Aggregate doctor with user
+    const doctors = await DoctorProfile.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(doctorUserId) } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      { $unwind: '$user' }
+    ]);
+
+    if (doctors.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found',
+      });
+    }
+
+    // Add id alias for frontend convenience
+    const doctor = {
+      ...doctors[0],
+      id: doctors[0].user._id.toString()
+    };
+
+    res.json({
+      success: true,
+      data: { doctor }
+    });
+  } catch (error) {
+    console.error('Error in getDoctorById:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 // Get all doctors with filters
 const getAllDoctors = async (req, res) => {
@@ -712,12 +820,22 @@ const editDoctorProfile = async (req, res) => {
   }
 };
 
-// Request reverification for suspended doctors
-const requestReverification = async (req, res) => {
-  try {
-    const doctorUserId = req.user._id;
 
-    // Find the doctor user
+
+// Get doctor reviews (admin only)
+const getDoctorReviews = async (req, res) => {
+  try {
+    const { doctorUserId } = req.params;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(doctorUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid doctor ID',
+      });
+    }
+
+    // Check if doctor exists
     const doctorUser = await User.findById(doctorUserId);
     if (!doctorUser || doctorUser.role !== 'DOCTOR') {
       return res.status(404).json({
@@ -726,38 +844,51 @@ const requestReverification = async (req, res) => {
       });
     }
 
-    // Find the doctor profile
-    const doctorProfile = await DoctorProfile.findOne({ userId: doctorUserId });
-    if (!doctorProfile) {
-      return res.status(404).json({
-        success: false,
-        message: 'Doctor profile not found',
-      });
-    }
-
-    // Check if doctor is suspended or rejected
-    if (doctorProfile.verificationStatus !== 'SUSPENDED' && doctorProfile.verificationStatus !== 'REJECTED') {
-      return res.status(400).json({
-        success: false,
-        message: 'Only suspended or rejected doctors can request reverification',
-      });
-    }
-
-    // Update verification status to PENDING
-    doctorProfile.verificationStatus = 'PENDING';
-    await doctorProfile.save();
-
-    // Keep doctor inactive until verified
-    doctorUser.isActive = false;
-    await doctorUser.save();
-
-    // Note: We don't log doctor-initiated actions to AdminAuditLog
-    // as they don't have an adminId and aren't admin actions
+    const reviews = await Review.find({ doctorId: new mongoose.Types.ObjectId(doctorUserId) })
+      .populate('patientId', 'name email')
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
-      message: 'Reverification request sent to admin',
-      data: { profile: doctorProfile },
+      data: { reviews },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Get doctor reports (admin only)
+const getDoctorReports = async (req, res) => {
+  try {
+    const { doctorUserId } = req.params;
+
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(doctorUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid doctor ID',
+      });
+    }
+
+    // Check if doctor exists
+    const doctorUser = await User.findById(doctorUserId);
+    if (!doctorUser || doctorUser.role !== 'DOCTOR') {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found',
+      });
+    }
+
+    const reports = await Report.find({ doctorId: new mongoose.Types.ObjectId(doctorUserId) })
+      .populate('patientId', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: { reports },
     });
   } catch (error) {
     res.status(500).json({
@@ -774,7 +905,10 @@ module.exports = {
   getAuditLogs,
   getAdminStats,
   getAllDoctors,
+  getDoctorById,
   suspendDoctor,
   unsuspendDoctor,
   editDoctorProfile,
+  getDoctorReviews,
+  getDoctorReports,
 };

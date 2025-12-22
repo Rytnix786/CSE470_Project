@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { adminAPI } from '../../api/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
@@ -6,6 +7,7 @@ import Input from '../../components/ui/Input';
 import { cleanDoctorName } from '../../utils/doctorUtils';
 
 export default function ManageDoctors() {
+  const navigate = useNavigate();
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,8 +23,7 @@ export default function ManageDoctors() {
     limit: 10,
     total: 0
   });
-  const [editingDoctor, setEditingDoctor] = useState(null);
-  const [editForm, setEditForm] = useState({});
+  // Removed unused state variables for edit/suspend functionality
 
   useEffect(() => {
     fetchDoctors();
@@ -66,105 +67,7 @@ export default function ManageDoctors() {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  const handleEdit = (doctor) => {
-    // Validate doctor data
-    if (!doctor || !doctor.user || !doctor.user._id) {
-      setMessage('Invalid doctor data');
-      setMessageType('error');
-      return;
-    }
-    
-    setEditingDoctor(doctor);
-    setEditForm({
-      specialization: doctor.specialization || '',
-      experienceYears: doctor.experienceYears || 0,
-      fee: doctor.fee || 0,
-      bio: doctor.bio || '',
-      licenseNo: doctor.licenseNo || '',
-
-    });
-  };
-
-  const handleSaveEdit = async () => {
-    // Validate doctor ID
-    if (!editingDoctor || !editingDoctor.user || !editingDoctor.user._id) {
-      setMessage('Invalid doctor ID');
-      setMessageType('error');
-      return;
-    }
-    
-    setLoading(true);
-    setMessage('');
-    try {
-      await adminAPI.updateDoctorProfile(editingDoctor.user._id, editForm);
-      setMessage('Doctor profile updated successfully!');
-      setMessageType('success');
-      setEditingDoctor(null);
-      fetchDoctors(); // Refresh the list
-    } catch (error) {
-      setMessage('Error updating doctor: ' + error.message);
-      setMessageType('error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingDoctor(null);
-  };
-
-  const handleSuspend = async (doctorUserId) => {
-    // Validate doctor ID
-    if (!doctorUserId || doctorUserId === 'undefined' || doctorUserId === 'null') {
-      setMessage('Invalid doctor ID');
-      setMessageType('error');
-      return;
-    }
-    
-    if (!window.confirm('Are you sure you want to suspend this doctor?')) return;
-    
-    setLoading(true);
-    setMessage('');
-    try {
-      const reason = prompt('Suspension reason (optional):') || 'Doctor suspended by admin';
-      await adminAPI.suspendDoctor(doctorUserId, { note: reason });
-      setMessage('Doctor suspended successfully!');
-      setMessageType('success');
-      fetchDoctors();
-    } catch (error) {
-      setMessage('Error suspending doctor: ' + error.message);
-      setMessageType('error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUnsuspend = async (doctorUserId) => {
-    // Validate doctor ID
-    if (!doctorUserId || doctorUserId === 'undefined' || doctorUserId === 'null') {
-      setMessage('Invalid doctor ID');
-      setMessageType('error');
-      return;
-    }
-    
-    if (!window.confirm('Are you sure you want to unsuspend this doctor?')) return;
-    
-    setLoading(true);
-    setMessage('');
-    try {
-      const reason = prompt('Unsuspension reason (optional):') || 'Doctor unsuspended by admin';
-      await adminAPI.unsuspendDoctor(doctorUserId, { note: reason });
-      setMessage('Doctor unsuspended successfully!');
-      setMessageType('success');
-      fetchDoctors();
-    } catch (error) {
-      setMessage('Error unsuspending doctor: ' + error.message);
-      setMessageType('error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Removed unused functions for edit/suspend functionality
 
 
   const getStatusBadge = (verificationStatus, user) => {
@@ -328,28 +231,11 @@ export default function ManageDoctors() {
               </div>
               <div className="ml-6 flex flex-col gap-2">
                 <button
-                  onClick={() => handleEdit(doctor)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
+                  onClick={() => navigate(`/admin/doctors/${doctor.user._id}`)}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 dark:bg-indigo-700 dark:hover:bg-indigo-800"
                 >
-                  Edit
+                  View Details
                 </button>
-                {!doctor.user.suspendedAt ? (
-                  <button
-                    onClick={() => handleSuspend(doctor.user._id)}
-                    disabled={loading}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 disabled:opacity-50 dark:bg-yellow-700 dark:hover:bg-yellow-800"
-                  >
-                    Suspend
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleUnsuspend(doctor.user._id)}
-                    disabled={loading}
-                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 dark:bg-green-700 dark:hover:bg-green-800"
-                  >
-                    Unsuspend
-                  </button>
-                )}
               </div>
             </div>
           </Card>
@@ -384,69 +270,7 @@ export default function ManageDoctors() {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editingDoctor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">Edit Doctor Profile</h2>
-            
-            <div className="space-y-4">
-              <Input
-                label="Specialization"
-                type="text"
-                value={editForm.specialization}
-                onChange={(e) => setEditForm({...editForm, specialization: e.target.value})}
-              />
-              
-              <Input
-                label="Experience (years)"
-                type="number"
-                value={editForm.experienceYears}
-                onChange={(e) => setEditForm({...editForm, experienceYears: parseInt(e.target.value) || 0})}
-              />
-              
-              <Input
-                label="Fee (BDT)"
-                type="number"
-                value={editForm.fee}
-                onChange={(e) => setEditForm({...editForm, fee: parseFloat(e.target.value) || 0})}
-              />
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bio</label>
-                <textarea
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100"
-                  rows="4"
-                  value={editForm.bio}
-                  onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
-                />
-              </div>
-              
-              <Input
-                label="License Number"
-                type="text"
-                value={editForm.licenseNo}
-                onChange={(e) => setEditForm({...editForm, licenseNo: e.target.value})}
-              />
-            </div>
-            
-            <div className="mt-6 flex justify-end gap-3">
-              <Button
-                onClick={handleCancelEdit}
-                variant="secondary"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveEdit}
-                disabled={loading}
-              >
-                {loading ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
+      {/* Removed unused modals for edit/suspend functionality */}
     </div>
   );
 }

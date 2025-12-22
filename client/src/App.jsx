@@ -16,6 +16,8 @@ import DoctorPatientHealthRecords from './pages/doctor/DoctorPatientHealthRecord
 import VerifyDoctors from './pages/admin/VerifyDoctors';
 import AdminProfile from './pages/admin/AdminProfile';
 import ManageDoctors from './pages/admin/ManageDoctors';
+import DoctorDetail from './pages/admin/DoctorDetail';
+import ManageReports from './pages/admin/ManageReports';
 import PatientAppointments from './pages/patient/PatientAppointments';
 import PrescriptionsList from './pages/patient/PrescriptionsList';
 import PatientPrescriptions from './pages/patient/PatientPrescriptions';
@@ -98,6 +100,18 @@ function App() {
                 <Route path="/admin/manage-doctors" element={
                   <ProtectedRoute roles={['ADMIN']}>
                     <ManageDoctors />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/admin/doctors/:doctorUserId" element={
+                  <ProtectedRoute roles={['ADMIN']}>
+                    <DoctorDetail />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/admin/reports" element={
+                  <ProtectedRoute roles={['ADMIN']}>
+                    <ManageReports />
                   </ProtectedRoute>
                 } />
                 

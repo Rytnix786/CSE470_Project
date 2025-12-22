@@ -3,7 +3,7 @@ const User = require('../../models/User');
 const AvailabilitySlot = require('../../models/AvailabilitySlot');
 const AdminAuditLog = require('../../models/AdminAuditLog');
 const { sendEmail } = require('../../config/email');
-const { createVerificationNotification } = require('../../utils/notify');
+const { createNotification, createVerificationNotification } = require('../../utils/notify');
 
 // Doctor creates/updates their profile
 const createOrUpdateProfile = async (req, res) => {
@@ -198,7 +198,10 @@ const getPendingDoctors = async (req, res) => {
     // Find pending doctors with active users
     // This includes initial verification requests and re-verification requests
     let doctors = await DoctorProfile.find({
-      verificationStatus: 'PENDING'
+      $or: [
+        { verificationStatus: 'PENDING' },
+        { reverificationRequestedAt: { $ne: null } }
+      ]
     }).populate({
       path: 'userId',
       match: { 
@@ -243,6 +246,8 @@ const verifyDoctor = async (req, res) => {
     if (status === 'REJECTED' && rejectionReason) {
       profile.rejectionReason = rejectionReason;
     }
+    // Clear reverification requested flag
+    profile.reverificationRequestedAt = null;
     await profile.save();
 
     // If verifying a doctor, make sure they are active
@@ -299,10 +304,12 @@ const verifyDoctor = async (req, res) => {
 const requestReverification = async (req, res) => {
   try {
     const doctorUserId = req.user._id;
+    console.log('DEBUG: requestReverification called for doctorUserId:', doctorUserId);
 
     // Find the doctor user
     const doctorUser = await User.findById(doctorUserId);
     if (!doctorUser || doctorUser.role !== 'DOCTOR') {
+      console.log('DEBUG: Doctor user not found or not a doctor');
       return res.status(404).json({
         success: false,
         message: 'Doctor not found',
@@ -312,14 +319,21 @@ const requestReverification = async (req, res) => {
     // Find the doctor profile
     const doctorProfile = await DoctorProfile.findOne({ userId: doctorUserId });
     if (!doctorProfile) {
+      console.log('DEBUG: Doctor profile not found');
       return res.status(404).json({
         success: false,
         message: 'Doctor profile not found',
       });
     }
+    
+    console.log('DEBUG: Doctor profile verificationStatus:', doctorProfile.verificationStatus);
 
     // Check if doctor is suspended or rejected
+    console.log('DEBUG: Checking verification status - current:', doctorProfile.verificationStatus, 'type:', typeof doctorProfile.verificationStatus);
+    console.log('DEBUG: Comparing with SUSPENDED - equal:', doctorProfile.verificationStatus === 'SUSPENDED');
+    console.log('DEBUG: Comparing with REJECTED - equal:', doctorProfile.verificationStatus === 'REJECTED');
     if (doctorProfile.verificationStatus !== 'SUSPENDED' && doctorProfile.verificationStatus !== 'REJECTED') {
+      console.log('DEBUG: Doctor not eligible for re-verification');
       return res.status(400).json({
         success: false,
         message: 'Only suspended or rejected doctors can request reverification',
@@ -327,12 +341,24 @@ const requestReverification = async (req, res) => {
     }
 
     // Update verification status to PENDING
+    console.log('DEBUG: Updating doctor profile for re-verification');
     doctorProfile.verificationStatus = 'PENDING';
+    doctorProfile.reverificationRequestedAt = new Date();
     await doctorProfile.save();
+    console.log('DEBUG: Doctor profile updated successfully');
 
     // Keep doctor inactive until verified
     doctorUser.isActive = false;
     await doctorUser.save();
+
+    // Create notification for admin
+    await createNotification({
+      recipientRole: 'ADMIN',
+      type: 'VERIFICATION',
+      title: 'Re-verification Requested',
+      message: `Dr. ${doctorUser.name} (License: ${doctorProfile.licenseNo}) has requested re-verification.`,
+      metadata: { doctorUserId, doctorName: doctorUser.name, requestType: 'REVERIFICATION' }
+    });
 
     // Note: We don't log doctor-initiated actions to AdminAuditLog
     // as they don't have an adminId and aren't admin actions
