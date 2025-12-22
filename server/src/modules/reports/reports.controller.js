@@ -2,6 +2,7 @@ const Report = require('../../models/Report');
 const Appointment = require('../../models/Appointment');
 const AdminAuditLog = require('../../models/AdminAuditLog');
 const { createNotification } = require('../../utils/notify');
+const { formatDoctorName } = require('../../utils/doctorUtils');
 const mongoose = require('mongoose');
 
 // Create a report
@@ -59,7 +60,7 @@ const createReport = async (req, res) => {
     const doctorUser = await User.findById(doctorId).select('name');
     const doctorProfile = await DoctorProfile.findOne({ userId: doctorId }).select('licenseNo specialization');
     
-    const doctorName = doctorUser ? doctorUser.name : `Doctor ${doctorId}`;
+    const doctorName = doctorUser ? formatDoctorName(doctorUser.name) : `Doctor ${doctorId}`;
     const licenseInfo = doctorProfile && doctorProfile.licenseNo ? ` (License: ${doctorProfile.licenseNo})` : '';
 
     // Create notification for admin
@@ -67,7 +68,7 @@ const createReport = async (req, res) => {
       recipientRole: 'ADMIN',
       type: 'SYSTEM',
       title: 'New Doctor Report',
-      message: `A new report has been submitted against Dr. ${doctorName}${licenseInfo}`,
+      message: `A new report has been submitted against ${doctorName}${licenseInfo}`,
       metadata: { reportId: report._id, doctorId, doctorName, patientId }
     });
 

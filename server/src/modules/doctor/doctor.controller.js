@@ -4,6 +4,7 @@ const AvailabilitySlot = require('../../models/AvailabilitySlot');
 const AdminAuditLog = require('../../models/AdminAuditLog');
 const { sendEmail } = require('../../config/email');
 const { createNotification, createVerificationNotification } = require('../../utils/notify');
+const { formatDoctorName } = require('../../utils/doctorUtils');
 
 // Doctor creates/updates their profile
 const createOrUpdateProfile = async (req, res) => {
@@ -352,12 +353,13 @@ const requestReverification = async (req, res) => {
     await doctorUser.save();
 
     // Create notification for admin
+    const formattedDoctorName = formatDoctorName(doctorUser.name);
     await createNotification({
       recipientRole: 'ADMIN',
       type: 'VERIFICATION',
       title: 'Re-verification Requested',
-      message: `Dr. ${doctorUser.name} (License: ${doctorProfile.licenseNo}) has requested re-verification.`,
-      metadata: { doctorUserId, doctorName: doctorUser.name, requestType: 'REVERIFICATION' }
+      message: `${formattedDoctorName} (License: ${doctorProfile.licenseNo}) has requested re-verification.`,
+      metadata: { doctorUserId, doctorName: formattedDoctorName, requestType: 'REVERIFICATION' }
     });
 
     // Note: We don't log doctor-initiated actions to AdminAuditLog
