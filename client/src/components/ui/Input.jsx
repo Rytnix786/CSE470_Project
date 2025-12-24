@@ -12,7 +12,7 @@ const Input = forwardRef(({
   
   const variantClasses = {
     default: 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/50',
-    glass: 'bg-white/20 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-white/10 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/50 backdrop-blur-sm'
+    glass: 'bg-white/80 dark:bg-slate-800/60 text-slate-900 dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 border border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/50 backdrop-blur-sm'
   };
   
   const inputClasses = `${baseInputClasses} ${variantClasses[variant]} ${className}`;
